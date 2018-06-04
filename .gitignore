@@ -105,7 +105,16 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-/databases
-/config
 .idea/workspace.xml
-!*.example
+
+/databases/remindme.db
+/databases/trump_quotes.db
+/databases/worldcup.db
+
+/config/admin.json
+/config/bomb.json
+/config/SlideIntoDMs.json
+/config/main.json
+/config/worldcup.json
+/config/trump_pic.json
+/config/trump_twitter.json
