@@ -395,4 +395,4 @@ if __name__ == '__main__':
     # print(w.add_bet(23423423, 2, 2, 2))
     # print(str(w.get_player_stats()))
     # w.update_from_json()
-    print(w.get_bets(187266861031882753, True))
+    # print(w.get_bets(187266861031882753, True))
