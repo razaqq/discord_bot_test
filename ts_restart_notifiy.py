@@ -23,6 +23,7 @@ class Notify:
                 ts.clientpoke(clid, message)
         ts.logout()
 
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("-time", type=int)
