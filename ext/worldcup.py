@@ -390,7 +390,7 @@ def setup(bot):
 
 
 if __name__ == '__main__':
-    w = WorldCup('C:/Users/fabio/PycharmProjects/discord_bot/', None)
+    w = WorldCup('', None)
     # print(w._get_game_details(1))
     # print(w.add_bet(23423423, 2, 2, 2))
     # print(str(w.get_player_stats()))
