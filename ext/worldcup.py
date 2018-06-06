@@ -7,7 +7,6 @@ from discord.ext import commands
 import datetime
 import discord
 import asyncio
-import asyncio
 
 
 class WorldCup:

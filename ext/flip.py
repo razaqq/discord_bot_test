@@ -32,6 +32,5 @@ class Flip:
             await self.bot.say('Usage: {}flip <your text here>'.format(self.config['prefix']))
 
 
-
 def setup(bot):
     bot.add_cog(Flip(bot))

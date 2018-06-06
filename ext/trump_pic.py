@@ -1,7 +1,5 @@
 from discord.ext import commands
-
 import json
-import logging
 import requests
 import random
 
@@ -23,7 +21,7 @@ class TrumpPic:
         if img:
             await self.bot.say(img)
         else:
-        	await self.bot.say('Something went turbowrong, retry')
+            await self.bot.say('Something went turbowrong, retry')
 
 
 class ImageSearch:

@@ -4,11 +4,8 @@ from prettytable import PrettyTable
 import sqlite3
 from distutils import util
 import logging
-import discord
 from discord.ext import commands
 from datetime import datetime
-
-logging.basicConfig(level=logging.INFO)
 
 
 class TrumpQuote:
