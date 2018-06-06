@@ -6,8 +6,6 @@ import json
 import logging
 from logging.handlers import RotatingFileHandler
 import os
-import sys
-import traceback
 
 import discord
 from discord.ext import commands
@@ -24,7 +22,7 @@ class Bot(commands.Bot):
                         )
 
         self.start_time = None
-        self.log = self.log_setup()
+        self.log_setup()
         self.loop.create_task(self.track_start())
         self.loop.create_task(self.load_all_extensions())
         self.loop.create_task(self.help_status())
@@ -35,7 +33,7 @@ class Bot(commands.Bot):
 
     async def run(self):
         try:
-            self.log.log(20, '####################################################################')
+            logging.log(20, '####################################################################')
             await self.start(self.config['token'], reconnect=True)
         except KeyboardInterrupt:
             await self.logout()
@@ -59,29 +57,29 @@ class Bot(commands.Bot):
             if e in exts:
                 exts.remove(e)
 
-        self.log.log(20, 'Loading extensions:')
+        logging.log(20, 'Loading extensions:')
         for extension in exts:
             try:
                 self.load_extension(f'ext.{extension}')
-                self.log.log(20, '- {}'.format(extension))
+                logging.log(20, '- {}'.format(extension))
             except Exception as e:
                 error = f'{extension}\n {type(e).__name__} : {e}'
-                self.log.error('- FAILED to load extension {}'.format(error))
-        self.log.log(20, '------------------------')
+                logging.error('- FAILED to load extension {}'.format(error))
+        logging.log(20, '------------------------')
 
     async def on_ready(self):
         """
         This event is called every time the bot connects or resumes connection.
         """
-        self.log.log(20, '------------------------')
-        self.log.log(20, 'Logged in as       : {} (ID {})'.format(self.user.name, self.user.id))
-        self.log.log(20, 'discord.py version : {} '.format(discord.__version__))
-        self.log.log(20, 'Start time         : {} '.format(self.start_time))
-        self.log.log(20, '------------------------')
-        self.log.log(20, 'Connected servers:')
+        logging.log(20, '------------------------')
+        logging.log(20, 'Logged in as       : {} (ID {})'.format(self.user.name, self.user.id))
+        logging.log(20, 'discord.py version : {} '.format(discord.__version__))
+        logging.log(20, 'Start time         : {} '.format(self.start_time))
+        logging.log(20, '------------------------')
+        logging.log(20, 'Connected servers:')
         for server in self.servers:
-            self.log.log(20, '- {} ({})'.format(server, server.id))
-        self.log.log(20, '------------------------')
+            logging.log(20, '- {} ({})'.format(server, server.id))
+            logging.log(20, '------------------------')
 
     async def help_status(self):
         await self.wait_until_ready()
@@ -99,11 +97,10 @@ class Bot(commands.Bot):
         logger = logging.getLogger()
         logger.setLevel(logging.INFO)
         handler = RotatingFileHandler(self.workdir + '\logs\discord_bot.log', maxBytes=100000, backupCount=5)
-        formatter = logging.Formatter('%(asctime)s - %(module)-10s - %(levelname)-5s -> %(message)s', datefmt='%d-%m|%H:%M')
-        # formatter = logging.Formatter('%(asctime)s  %(process)-7s %(module)-20s %(message)s', datefmt='%m/%d/%Y %H:%M:%S')
+        formatter = logging.Formatter('%(asctime)s - %(module)-10s - %(levelname)-5s -> %(message)s',
+                                      datefmt='%d-%m|%H:%M')
         handler.setFormatter(formatter)
         logger.addHandler(handler)
-        return logger
 
 
 if __name__ == '__main__':
