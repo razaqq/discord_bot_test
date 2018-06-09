@@ -1,4 +1,3 @@
-import discord
 from discord.ext import commands
 from ts3_mod import server
 

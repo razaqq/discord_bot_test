@@ -4,8 +4,8 @@ import asyncio
 import datetime
 import json
 import logging
+from logging.handlers import RotatingFileHandler
 import os
-import sys
 import traceback
 
 import discord
@@ -23,6 +23,8 @@ class Bot(commands.Bot):
                         )
 
         self.start_time = None
+        self.log_setup()
+        self._restart = False
         self.loop.create_task(self.track_start())
         self.loop.create_task(self.load_all_extensions())
         self.loop.create_task(self.help_status())
@@ -33,6 +35,7 @@ class Bot(commands.Bot):
 
     async def run(self):
         try:
+            logging.log(20, '####################################################################')
             await self.start(self.config['token'], reconnect=True)
         except KeyboardInterrupt:
             await self.logout()
@@ -50,45 +53,35 @@ class Bot(commands.Bot):
         """
         await self.wait_until_ready()
         await asyncio.sleep(1)  # ensure that on_ready has completed and finished printing
-        #exts = [x.stem for x in Path('ext').glob('*.py')]
         exts = [x.split('.')[0] for x in os.listdir(self.workdir + '/ext') if x.endswith(".py")]
 
         for e in self.config['disabled_exts'].split(","):
             if e in exts:
                 exts.remove(e)
 
-        log = '\nLoading extensions:\n'
+        logging.log(20, 'Loading extensions:')
         for extension in exts:
             try:
                 self.load_extension(f'ext.{extension}')
-                log += '- {}\n'.format(extension)
+                logging.log(20, '- {}'.format(extension))
             except Exception as e:
                 error = f'{extension}\n {type(e).__name__} : {e}'
-                log += '- FAILED to load extension {}\n'.format(error)
-        log += '------------------------'
-        logging.log(20, log)
+                logging.error('- FAILED to load extension {}'.format(error))
+        logging.log(20, '------------------------')
 
     async def on_ready(self):
         """
         This event is called every time the bot connects or resumes connection.
         """
-        connected_servers = ''
+        logging.log(20, '------------------------')
+        logging.log(20, 'Logged in as       : {} (ID {})'.format(self.user.name, self.user.id))
+        logging.log(20, 'discord.py version : {} '.format(discord.__version__))
+        logging.log(20, 'Start time         : {} '.format(self.start_time))
+        logging.log(20, '------------------------')
+        logging.log(20, 'Connected servers:')
         for server in self.servers:
-            connected_servers += '- {} ({})\n'.format(server, server.id)
-        login_info = '\n' \
-                     '------------------------\n' \
-                     'Logged in as       : {} (ID {}) \n' \
-                     'discord.py version : {} \n' \
-                     'Start time         : {} \n' \
-                     '------------------------\n' \
-                     'Connected servers:\n' \
-                     '{}' \
-                     '------------------------' \
-                     ''.format(self.user.name, self.user.id,
-                               discord.__version__,
-                               self.start_time,
-                               connected_servers)
-        logging.log(20, login_info)
+            logging.log(20, '- {} ({})'.format(server, server.id))
+            logging.log(20, '------------------------')
 
     async def help_status(self):
         await self.wait_until_ready()
@@ -102,10 +95,34 @@ class Bot(commands.Bot):
             return  # ignore all bots
         await self.process_commands(message)
 
+    async def shutdown(self, restart=False):
+        self._restart = restart
+        await self.logout()
+
+    def log_setup(self):
+        logger = logging.getLogger()
+        logger.setLevel(logging.INFO)
+        handler = RotatingFileHandler(self.workdir + '/logs/discord_bot.log', maxBytes=100000, backupCount=5)
+        formatter = logging.Formatter('%(asctime)s - %(module)-10s - %(levelname)-5s -> %(message)s',
+                                      datefmt='%d-%m|%H:%M')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.INFO)
-
     bot = Bot('/config/main.json')
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(bot.run())
+    try:
+        loop.run_until_complete(bot.run())
+    except discord.LoginFailure:
+        logging.error(traceback.format_exc())
+    except KeyboardInterrupt:
+        loop.run_until_complete(bot.logout())
+    except Exception as e:
+        logging.error(e)
+    finally:
+        loop.close()
+        if bot._restart:
+            exit(400)
+        else:
+            exit(0)
