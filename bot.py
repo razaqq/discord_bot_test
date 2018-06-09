@@ -81,7 +81,7 @@ class Bot(commands.Bot):
         logging.log(20, 'Connected servers:')
         for server in self.servers:
             logging.log(20, '- {} ({})'.format(server, server.id))
-            logging.log(20, '------------------------')
+        logging.log(20, '------------------------')
 
     async def help_status(self):
         await self.wait_until_ready()
