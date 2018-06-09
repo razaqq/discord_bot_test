@@ -7,6 +7,7 @@ from discord.ext import commands
 import datetime
 import discord
 import asyncio
+import logging
 
 
 class WorldCup:
@@ -227,7 +228,7 @@ class DiscordWorldCup:
 
     async def start(self):
         await self.bot.wait_until_ready()
-        await self.clear_channel()
+        # await self.clear_channel()
         await self.update_channel()
 
     @staticmethod
@@ -245,11 +246,13 @@ class DiscordWorldCup:
 
     async def update_channel(self):
         self.wc.update_from_json()
+        messages = await self.get_messages()
         tables = self.wc.get_game_plan()
         for table in tables:
-            await self.bot.send_message(self.channel, '```' + str(table) + '```')
+            m = messages[tables.index(table)]
+            await self.bot.edit_message(m, '```' + str(table) + '```')
             await asyncio.sleep(1.2)
-        await self.bot.send_message(self.channel, '```' + str(self.wc.get_player_stats()) + '```')
+        await self.bot.edit_message(messages[4], '```' + str(self.wc.get_player_stats()) + '```')
         await asyncio.sleep(1.2)
         msg = 'Commands for FIFA WorldCup 2018:\n\n' \
               '!bet <gameid> <score1>:<score2>, ex: !bet 12 3:3 - to save a vote\n' \
@@ -259,7 +262,20 @@ class DiscordWorldCup:
               'Means you can get 0, 1 or 3 points per game, which results in a total maximum of 192 points\n\n' \
               'Tables in this channel will update every day automatically or when you type "update", ' \
               'texting is disabled'
-        await self.bot.send_message(self.channel, '```' + msg + '```')
+        await self.bot.edit_message(messages[5], '```' + msg + '```')
+
+    async def get_messages(self):
+        messages = []
+        for m_id in self.config['messages']:
+            try:
+                messages.append(await self.bot.get_message(self.channel, str(m_id)))
+            except discord.NotFound:
+                await self.bot.send_message(self.channel, 'Some nerd deleted some of the messages, please fix')
+            except discord.Forbidden:
+                await self.bot.send_message(self.channel, 'I dont have permissions for that!')
+            except discord.HTTPException:
+                await self.bot.send_message(self.channel, 'Discord servers are shit again')
+        return messages
 
     async def on_message(self, message):
         if message.author.bot:
@@ -273,7 +289,6 @@ class DiscordWorldCup:
     @commands.command(pass_context=True)
     async def bet(self, ctx, game=None, score=None):
         """Bet a score for a game"""
-        msg = ctx.message
         player_id = ctx.message.author.id
         if game and score:
             try:
