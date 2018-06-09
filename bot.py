@@ -6,6 +6,7 @@ import json
 import logging
 from logging.handlers import RotatingFileHandler
 import os
+import traceback
 
 import discord
 from discord.ext import commands
@@ -93,6 +94,9 @@ class Bot(commands.Bot):
             return  # ignore all bots
         await self.process_commands(message)
 
+    async def shutdown(self, restart=True):
+        await self.logout()
+
     def log_setup(self):
         logger = logging.getLogger()
         logger.setLevel(logging.INFO)
@@ -106,4 +110,14 @@ class Bot(commands.Bot):
 if __name__ == '__main__':
     bot = Bot('/config/main.json')
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(bot.run())
+    try:
+        loop.run_until_complete(bot.run())
+    except discord.LoginFailure:
+        logging.error(traceback.format_exc())
+    except KeyboardInterrupt:
+        loop.run_until_complete(bot.logout())
+    except Exception as e:
+        logging.error(e)
+    finally:
+        loop.close()
+        exit(400)
