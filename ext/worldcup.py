@@ -284,7 +284,7 @@ class DiscordWorldCup:
         elif message.channel == self.channel:
             await self.bot.delete_message(message)
         if message.content == 'update' and message.channel == self.channel:
-            await self.clear_channel()
+            # await self.clear_channel()
             await self.update_channel()
 
     @commands.command(pass_context=True)
