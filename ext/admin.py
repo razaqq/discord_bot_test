@@ -144,8 +144,12 @@ class Admin:
         """Exits the bot with status 0 or 400"""
         author = ctx.message.author
         if self.is_admin(author):
-            await self.bot.say("Restarting...")
-            logging.log(20, 'RESTART ORDERED BY {}'.format(author.name))
+            if restart:
+                await self.bot.say("Restarting...")
+                logging.log(20, 'RESTART ORDERED BY {}'.format(author.name))
+            else:
+                await self.bot.say('Shutting down...')
+                logging.log(20, 'SHUTDOWN ORDERED BY {}'.format(author.name))
             await self.bot.shutdown(restart=restart)
         else:
             await self.bot.say("You don't have permissions")
