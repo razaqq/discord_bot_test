@@ -140,12 +140,13 @@ class Admin:
         await self.bot.say('```{}```'.format(t))
 
     @commands.command(pass_context=True, hidden=True)
-    async def restart(self, ctx):
+    async def shutdown(self, ctx, restart=False):
+        """Exits the bot with status 0 or 400"""
         author = ctx.message.author
         if self.is_admin(author):
             await self.bot.say("Restarting...")
             logging.log(20, 'RESTART ORDERED BY {}'.format(author.name))
-            await self.bot.shutdown(restart=True)
+            await self.bot.shutdown(restart=restart)
         else:
             await self.bot.say("You don't have permissions")
 

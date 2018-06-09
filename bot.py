@@ -24,6 +24,7 @@ class Bot(commands.Bot):
 
         self.start_time = None
         self.log_setup()
+        self._restart = False
         self.loop.create_task(self.track_start())
         self.loop.create_task(self.load_all_extensions())
         self.loop.create_task(self.help_status())
@@ -94,7 +95,8 @@ class Bot(commands.Bot):
             return  # ignore all bots
         await self.process_commands(message)
 
-    async def shutdown(self, restart=True):
+    async def shutdown(self, restart=False):
+        self._restart = restart
         await self.logout()
 
     def log_setup(self):
@@ -120,4 +122,7 @@ if __name__ == '__main__':
         logging.error(e)
     finally:
         loop.close()
-        exit(400)
+        if bot._restart:
+            exit(400)
+        else:
+            exit(0)
