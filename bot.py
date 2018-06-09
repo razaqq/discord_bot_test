@@ -100,7 +100,7 @@ class Bot(commands.Bot):
     def log_setup(self):
         logger = logging.getLogger()
         logger.setLevel(logging.INFO)
-        handler = RotatingFileHandler(self.workdir + '\logs\discord_bot.log', maxBytes=100000, backupCount=5)
+        handler = RotatingFileHandler(self.workdir + '/logs/discord_bot.log', maxBytes=100000, backupCount=5)
         formatter = logging.Formatter('%(asctime)s - %(module)-10s - %(levelname)-5s -> %(message)s',
                                       datefmt='%d-%m|%H:%M')
         handler.setFormatter(formatter)
