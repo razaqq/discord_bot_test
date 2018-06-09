@@ -125,5 +125,11 @@ def setup(bot):
     t = TrumpTwitter(bot)
     t.start_stream()
     loop = asyncio.get_event_loop()
-    loop.create_task(t.check_tweets())
+    try:
+        # loop.create_task(t.check_tweets())
+        loop.run_until_complete(t.check_tweets())
+    except Exception as e:
+        logging.error(e)
+    finally:
+        loop.close()
     bot.add_cog(TrumpTwitter(bot))
