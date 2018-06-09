@@ -150,7 +150,7 @@ class Admin:
             await self.bot.say("You don't have permissions")
 
     def is_admin(self, user):
-        if user.id in self.admins:
+        if int(user.id) in self.admins:
             return True
         else:
             return False
