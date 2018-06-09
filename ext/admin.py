@@ -139,10 +139,15 @@ class Admin:
         t.align = "r"
         await self.bot.say('```{}```'.format(t))
 
-    @commands.command()
-    async def restart(self):
-        await self.bot.say("Restarting...")
-        await self.bot.shutdown(restart=True)
+    @commands.command(pass_context=True, hidden=True)
+    async def restart(self, ctx):
+        author = ctx.message.author
+        if self.is_admin(author):
+            await self.bot.say("Restarting...")
+            logging.log(20, 'RESTART ORDERED BY {}'.format(author.name))
+            await self.bot.shutdown(restart=True)
+        else:
+            await self.bot.say("You don't have permissions")
 
     def is_admin(self, user):
         if user.id in self.admins:
