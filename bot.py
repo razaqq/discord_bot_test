@@ -7,7 +7,6 @@ import logging
 from logging.handlers import RotatingFileHandler
 import os
 import traceback
-
 import discord
 from discord.ext import commands
 
