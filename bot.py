@@ -122,6 +122,6 @@ if __name__ == '__main__':
     finally:
         loop.close()
         if bot._restart:
-            exit(400)
+            exit(1)
         else:
             exit(0)
