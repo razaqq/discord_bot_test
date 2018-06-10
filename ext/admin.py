@@ -144,7 +144,7 @@ class Admin:
         """Exits the bot with status 0 or 400"""
         author = ctx.message.author
         if self.is_admin(author):
-            await self.bot.say('Shutting down...')
+            await self.bot.say('Shutdown pending... (trying to kill all running tasks)')
             logging.log(20, 'SHUTDOWN ORDERED BY {}'.format(author.name))
             await self.bot.shutdown(restart=False)
         else:
@@ -155,7 +155,7 @@ class Admin:
         """Exits the bot with status 0 or 400"""
         author = ctx.message.author
         if self.is_admin(author):
-            await self.bot.say('Restarting...')
+            await self.bot.say('Restart pending... (trying to kill all running tasks)')
             logging.log(20, 'RESTART ORDERED BY {}'.format(author.name))
             await self.bot.shutdown(restart=True)
         else:

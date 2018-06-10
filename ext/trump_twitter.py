@@ -9,6 +9,8 @@ from tweepy import Stream
 from tweepy import API
 from tweepy.streaming import StreamListener
 
+import signal
+import functools
 
 tweets = []
 
@@ -124,6 +126,5 @@ class StdOutListener(StreamListener):
 def setup(bot):
     t = TrumpTwitter(bot)
     t.start_stream()
-    loop = asyncio.get_event_loop()
-    loop.create_task(t.check_tweets())
+    bot.loop.create_task(t.check_tweets())
     bot.add_cog(TrumpTwitter(bot))
