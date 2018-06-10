@@ -11,11 +11,12 @@ import logging
 
 
 class WorldCup:
-    def __init__(self, workdir, server):
+    def __init__(self, workdir, server, api_key):
         self.conn = sqlite3.connect('{}/databases/worldcup.db'.format(workdir))
         self.cursor = self.conn.cursor()
-        self.json = 'http://api.football-data.org/v1/competitions/467/fixtures'
+        self.url = 'http://api.football-data.org/v1/competitions/467/fixtures'
         self.server = server
+        self.api_key = api_key
 
     def add_bet(self, player_id, game, team1_score, team2_score):
         _game_details = self._get_game_details(game)
@@ -178,8 +179,11 @@ class WorldCup:
         return _res[0]
 
     def update_from_json(self):
-        r = requests.get(self.json)
+        headers = {'X-Auth-Token': self.api_key}
+        r = requests.get(self.url, headers=headers)
         data = r.json()
+        if 'error' in data:
+            return
         fixtures = data['fixtures']
         for match in fixtures:
             match_id = fixtures.index(match) + 1
@@ -238,9 +242,8 @@ class WorldCup:
         self.cursor.execute(_code)
         self.conn.commit()
 
-
     def _get_flag_emojis_from_json(self):
-        r = requests.get(self.json)
+        r = requests.get(self.url)
         data = r.json()
         teams = data['teams']
         dic = dict()
@@ -268,7 +271,7 @@ class DiscordWorldCup:
         self.config = self.load_config(self.bot.workdir)
         self.server = discord.utils.get(self.bot.servers, id=str(self.config['server']))
         self.channel = self.server.get_channel(str(self.config['channel']))
-        self.wc = WorldCup(self.bot.workdir, self.server)
+        self.wc = WorldCup(self.bot.workdir, self.server, self.config['api-token'])
         loop = asyncio.get_event_loop()
         loop.create_task(self.start())
 
@@ -276,6 +279,11 @@ class DiscordWorldCup:
         await self.bot.wait_until_ready()
         # await self.clear_channel()
         await self.update_channel()
+
+    async def task_run(self):
+        await self.bot.wait_until_ready()
+        await self.update_channel()
+        await asyncio.sleep(30 * 60)
 
     @staticmethod
     def load_config(workdir):
@@ -306,8 +314,7 @@ class DiscordWorldCup:
               '!bets - to see your saved bets\n\n' \
               'You get 1 point for guessing the correct winner (or draw) and 3 points for the correct score\n' \
               'Means you can get 0, 1 or 3 points per game, which results in a total maximum of 192 points\n\n' \
-              'Tables in this channel will update every day automatically or when you type "update", ' \
-              'texting is disabled\n' \
+              'Tables in this channel will update every 30 minutes, texting is disabled' \
               'last update: {}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         await self.bot.edit_message(messages[5], '```' + msg + '```')
 
@@ -329,9 +336,9 @@ class DiscordWorldCup:
             return
         elif message.channel == self.channel:
             await self.bot.delete_message(message)
-        if message.content == 'update' and message.channel == self.channel:
+        # if message.content == 'update' and message.channel == self.channel:
             # await self.clear_channel()
-            await self.update_channel()
+            # await self.update_channel()
 
     @commands.command(pass_context=True)
     async def bet(self, ctx, game=None, score=None):
@@ -447,14 +454,15 @@ class DiscordWorldCup:
 
 def setup(bot):
     d = DiscordWorldCup(bot)
+    bot.loop.add_task(d.task_run())
     bot.add_cog(d)
 
 
 if __name__ == '__main__':
-    w = WorldCup('.', None)
+    w = WorldCup('.', None, '0ce37e3c659f4f3383e792797c490e5e')
     # print(w._get_game_details(1))
     # print(w.add_bet(23423423, 2, 2, 2))
     # print(str(w.get_player_stats()))
     # w.update_from_json()
     # print(w.get_bets_by_player(187266861031882753, True))
-    print(w.update_player_points())
+    print(w.update_from_json())
