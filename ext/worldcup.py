@@ -458,7 +458,7 @@ class DiscordWorldCup:
 
 def setup(bot):
     d = DiscordWorldCup(bot)
-    bot.loop.add_task(d.task_run())
+    bot.loop.create_task(d.task_run())
     bot.add_cog(d)
 
 
