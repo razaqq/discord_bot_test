@@ -282,8 +282,12 @@ class DiscordWorldCup:
 
     async def task_run(self):
         await self.bot.wait_until_ready()
-        await self.update_channel()
-        await asyncio.sleep(30 * 60)
+        while True:
+            try:
+                await self.update_channel()
+            except Exception as e:
+                logging.error(e)
+            await asyncio.sleep(30 * 60)
 
     @staticmethod
     def load_config(workdir):
