@@ -314,7 +314,7 @@ class DiscordWorldCup:
               '!bets - to see your saved bets\n\n' \
               'You get 1 point for guessing the correct winner (or draw) and 3 points for the correct score\n' \
               'Means you can get 0, 1 or 3 points per game, which results in a total maximum of 192 points\n\n' \
-              'Tables in this channel will update every 30 minutes, texting is disabled' \
+              'Tables in this channel will update every 30 minutes, texting is disabled\n' \
               'last update: {}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         await self.bot.edit_message(messages[5], '```' + msg + '```')
 
