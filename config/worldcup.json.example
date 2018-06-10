@@ -2,6 +2,7 @@
   "server": "1234",
   "channel": "1234",
   "messages": [1234, 1234, 1234],
+  "api-token": "1234",
 
   "Russia": "flag-ru",
   "Saudi Arabia": "flag-sa",
