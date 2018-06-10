@@ -9,6 +9,7 @@ import os
 import traceback
 import discord
 from discord.ext import commands
+from contextlib import suppress
 
 
 class Bot(commands.Bot):
@@ -120,11 +121,13 @@ if __name__ == '__main__':
     except Exception as e:
         logging.error(e)
     finally:
-        for task in asyncio.Task.all_tasks():
+        pending = asyncio.Task.all_tasks(loop)
+        for task in pending:
             task.cancel()
-
+            with suppress(asyncio.CancelledError):
+                loop.run_until_complete(task)
         loop.close()
         if bot._restart:
-            exit(1)
+            os._exit(1)
         else:
-            exit(0)
+            os._exit(0)
