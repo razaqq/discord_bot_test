@@ -219,7 +219,8 @@ class WorldCup:
                 t2_bet_score = bet[5]
                 correct_score = t1_bet_score == t1_score and t2_bet_score == t2_score
                 correct_winner = (t1_bet_score > t2_bet_score and t1_score > t2_score) or \
-                                 (t1_bet_score < t2_bet_score and t1_score < t2_score)
+                                 (t1_bet_score < t2_bet_score and t1_score < t2_score) or \
+                                 (t1_bet_score == t2_bet_score and t1_score == t2_score)
                 if correct_score:
                     if player in player_points:
                         player_points[player] += 3
