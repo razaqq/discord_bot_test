@@ -9,6 +9,7 @@ from tweepy import Stream
 from tweepy import API
 from tweepy.streaming import StreamListener
 
+import signal
 
 tweets = []
 
@@ -63,8 +64,6 @@ class TrumpTwitter:
 
             except Exception as e:
                 logging.log(20, e)
-
-            await asyncio.sleep(60)
 
 
 class Tweet:
@@ -121,9 +120,31 @@ class StdOutListener(StreamListener):
         return True
 
 
+def exit_loop():
+    loop = asyncio.get_event_loop()
+    loop.stop()
+
+
+def ask_exit():
+    for task in asyncio.Task.all_tasks():
+        task.cancel()
+    asyncio.ensure_future(exit_loop())
+
+
 def setup(bot):
     t = TrumpTwitter(bot)
     t.start_stream()
     loop = asyncio.get_event_loop()
-    loop.create_task(t.check_tweets())
+    for sig in (signal.SIGINT, signal.SIGTERM):
+        loop.add_signal_handler(sig, ask_exit)
+    while True:
+        try:
+            t.check_tweets()
+            asyncio.sleep(60)
+        except asyncio.CancelledError as e:
+            logging.error(e)
+            break
+    # loop.create_task(t.check_tweets())
+    loop.run_forever()
+    loop.close()
     bot.add_cog(TrumpTwitter(bot))
