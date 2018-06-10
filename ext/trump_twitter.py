@@ -64,6 +64,7 @@ class TrumpTwitter:
 
             except Exception as e:
                 logging.log(20, e)
+            asyncio.sleep(60)
 
 
 class Tweet:
@@ -135,16 +136,11 @@ def setup(bot):
     t = TrumpTwitter(bot)
     t.start_stream()
     loop = asyncio.get_event_loop()
-    for sig in (signal.SIGINT, signal.SIGTERM):
-        loop.add_signal_handler(sig, ask_exit)
-    while True:
-        try:
-            t.check_tweets()
-            asyncio.sleep(60)
-        except asyncio.CancelledError as e:
-            logging.error(e)
-            break
     # loop.create_task(t.check_tweets())
-    loop.run_forever()
-    loop.close()
+    try:
+        loop.run_until_complete(t.check_tweets())
+    except asyncio.CancelledError:
+        logging.info('Twitter task has been cancelled')
+    finally:
+        loop.close()
     bot.add_cog(TrumpTwitter(bot))

@@ -120,6 +120,9 @@ if __name__ == '__main__':
     except Exception as e:
         logging.error(e)
     finally:
+        for task in asyncio.Task.all_tasks():
+            task.cancel()
+
         loop.close()
         if bot._restart:
             exit(1)
