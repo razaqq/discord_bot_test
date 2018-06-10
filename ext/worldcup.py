@@ -134,7 +134,7 @@ class WorldCup:
             games.append(GameDetails(r))
         return games
 
-    def get_bets(self, player_id, table=False):
+    def get_bets_by_player(self, player_id, table=False):
         _code = "SELECT * FROM votes WHERE player_id={};".format(player_id)
         self.cursor.execute(_code)
         _res = self.cursor.fetchall()
@@ -153,6 +153,12 @@ class WorldCup:
                 t.add_row(row)
 
             return t.get_string()
+
+    def get_bets_by_game(self, game):
+        _code = "SELECT * FROM votes WHERE game={};".format(game)
+        self.cursor.execute(_code)
+        _res = self.cursor.fetchall()
+        return _res
 
     def get_finished_games(self):
         pass
@@ -190,8 +196,48 @@ class WorldCup:
             self.conn.commit()
 
     def update_player_points(self):
-        # TODO
-        pass
+        _code = 'DELETE FROM points;'
+        self.cursor.execute(_code)
+        self.conn.commit()
+
+        games = self.get_game_list()
+        player_points = dict()
+        for game in games:
+            if game.score == 'None:None':
+                continue
+            bets = self.get_bets_by_game(game.game)
+            score = game.score.split(':')
+            t1_score = int(score[0])
+            t2_score = int(score[1])
+            for bet in bets:
+                player = bet[6]
+                t1_bet_score = bet[4]
+                t2_bet_score = bet[5]
+                correct_score = t1_bet_score == t1_score and t2_bet_score == t2_score
+                correct_winner = (t1_bet_score > t2_bet_score and t1_score > t2_score) or \
+                                 (t1_bet_score < t2_bet_score and t1_score < t2_score)
+                if correct_score:
+                    if player in player_points:
+                        player_points[player] += 3
+                    else:
+                        player_points[player] = 3
+                elif correct_winner:
+                    if player in player_points:
+                        player_points[player] += 1
+                    else:
+                        player_points[player] = 1
+                else:
+                    if player not in player_points:
+                        player_points[player] = 0
+
+        for player in player_points:
+            self.set_points(player, player_points[player])
+
+    def set_points(self, player, points):
+        _code = 'INSERT INTO points VALUES ({}, {})'.format(player, points)
+        self.cursor.execute(_code)
+        self.conn.commit()
+
 
     def _get_flag_emojis_from_json(self):
         r = requests.get(self.json)
@@ -306,7 +352,7 @@ class DiscordWorldCup:
     async def bets(self, ctx):
         """Shows your bets"""
         author = ctx.message.author
-        vote_table = self.wc.get_bets(author.id, True)
+        vote_table = self.wc.get_bets_by_player(author.id, True)
         await self.bot.send_message(author, '```' + vote_table + '```')
 
     @commands.command(pass_context=True)
@@ -345,7 +391,7 @@ class DiscordWorldCup:
                 return await self.bot.send_message(author, 'Only range 1-64 allowed')
 
             games = self.wc.get_game_list()
-            votes = self.wc.get_bets(author.id)
+            votes = self.wc.get_bets_by_player(author.id)
 
             await self.bot.send_message(author, 'Im going to ask you the bets now.')
             await self.bot.send_message(author, 'Please respond in this format: "2:0" without the "')
@@ -405,9 +451,10 @@ def setup(bot):
 
 
 if __name__ == '__main__':
-    w = WorldCup('', None)
+    w = WorldCup('.', None)
     # print(w._get_game_details(1))
     # print(w.add_bet(23423423, 2, 2, 2))
     # print(str(w.get_player_stats()))
     # w.update_from_json()
-    # print(w.get_bets(187266861031882753, True))
+    # print(w.get_bets_by_player(187266861031882753, True))
+    print(w.update_player_points())
