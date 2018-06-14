@@ -15,6 +15,7 @@ class WorldCup:
         self.conn = sqlite3.connect('{}/databases/worldcup.db'.format(workdir))
         self.cursor = self.conn.cursor()
         self.url = 'http://api.football-data.org/v1/competitions/467/fixtures'
+        self.pending = []
         self.server = server
         self.api_key = api_key
 
@@ -84,9 +85,6 @@ class WorldCup:
             t.add_row([name, points])
         return t
 
-    def get_upcoming_games(self, player_id, game, score):
-        pass
-
     def get_game_plan(self):
         try:
             _code = "SELECT * FROM games ORDER BY game ASC;"
@@ -136,7 +134,7 @@ class WorldCup:
         return games
 
     def get_bets_by_player(self, player_id, table=False):
-        _code = "SELECT * FROM votes WHERE player_id={};".format(player_id)
+        _code = "SELECT * FROM votes WHERE player_id={};".format(int(player_id))
         self.cursor.execute(_code)
         _res = self.cursor.fetchall()
         if not table:
@@ -162,12 +160,11 @@ class WorldCup:
         return _res
 
     def get_finished_games(self):
-        pass
+        games = [GameDetails(self._get_game_details(game_id)) for game_id in self.pending]
+        self.pending = []
+        return games
 
     def get_goals(self, game):
-        pass
-
-    def _get_flag(self, team):
         pass
 
     def _get_game_details(self, game):
@@ -193,8 +190,18 @@ class WorldCup:
             result = match['result']
             score = '{}:{}'.format(result['goalsHomeTeam'], result['goalsAwayTeam'])
 
-            _code = 'UPDATE games SET date="{}", team1="{}", team2="{}", score="{}" WHERE game={}'.format(
-                date, team1, team2, score, match_id
+            status = match['status']
+            if status != 'FINISHED':
+                finished = False
+            else:
+                finished = True
+
+            game = GameDetails(self._get_game_details(match_id))
+            if not game.finished and status == 'FINISHED':
+                self.pending.append(match_id)
+
+            _code = 'UPDATE games SET date="{}", team1="{}", team2="{}", score="{}", finished="{}" WHERE game={}'.format(
+                date, team1, team2, score, finished, match_id
             )
             self.cursor.execute(_code)
             self.conn.commit()
@@ -264,6 +271,7 @@ class GameDetails:
         self.team1 = details[4]
         self.team2 = details[5]
         self.score = details[6]
+        self.finished = bool(details[7])
 
 
 class DiscordWorldCup:
@@ -271,7 +279,8 @@ class DiscordWorldCup:
         self.bot = bot
         self.config = self.load_config(self.bot.workdir)
         self.server = discord.utils.get(self.bot.servers, id=str(self.config['server']))
-        self.channel = self.server.get_channel(str(self.config['channel']))
+        self.main_channel = self.server.get_channel(str(self.config['main_channel']))
+        self.results_channel = self.server.get_channel(str(self.config['results_channel']))
         self.wc = WorldCup(self.bot.workdir, self.server, self.config['api-token'])
         loop = asyncio.get_event_loop()
         loop.create_task(self.start())
@@ -297,7 +306,7 @@ class DiscordWorldCup:
 
     async def clear_channel(self):
         counter = 0
-        async for x in self.bot.logs_from(self.channel, limit=50):
+        async for x in self.bot.logs_from(self.main_channel, limit=50):
             if counter < 50:
                 await self.bot.delete_message(x)
                 counter += 1
@@ -305,6 +314,26 @@ class DiscordWorldCup:
 
     async def update_channel(self):
         self.wc.update_from_json()
+        self.wc.update_player_points()
+        finished = self.wc.get_finished_games()
+        for game in finished:
+            votes = self.wc.get_bets_by_game(game.game)
+            t = PrettyTable()
+            t.left_padding_width = 1
+            t.right_padding_width = 1
+            t.title = 'Your bets'
+            t.field_names = ['Player', 'Bet']
+            for vote in votes:
+                row = [discord.utils.get(self.server.members, id=str(vote[6])).nick, '{}:{}'.format(vote[4], vote[5])]
+                t.add_row(row)
+
+            team1_flag = self.config[game.team1]
+            team2_flag = self.config[game.team2]
+            msg = 'Game just ended!\n' \
+                  '{} vs {} : {}\n\n' \
+                  '{}'.format(team1_flag, team2_flag, game.score, t.get_string())
+            self.bot.send_message(self.results_channel, msg)
+
         messages = await self.get_messages()
         tables = self.wc.get_game_plan()
         for table in tables:
@@ -327,19 +356,19 @@ class DiscordWorldCup:
         messages = []
         for m_id in self.config['messages']:
             try:
-                messages.append(await self.bot.get_message(self.channel, str(m_id)))
+                messages.append(await self.bot.get_message(self.main_channel, str(m_id)))
             except discord.NotFound:
-                await self.bot.send_message(self.channel, 'Some nerd deleted some of the messages, please fix')
+                await self.bot.send_message(self.main_channel, 'Some nerd deleted some of the messages, please fix')
             except discord.Forbidden:
-                await self.bot.send_message(self.channel, 'I dont have permissions for that!')
+                await self.bot.send_message(self.main_channel, 'I dont have permissions for that!')
             except discord.HTTPException:
-                await self.bot.send_message(self.channel, 'Discord servers are shit again')
+                await self.bot.send_message(self.main_channel, 'Discord servers are shit again')
         return messages
 
     async def on_message(self, message):
         if message.author.bot:
             return
-        elif message.channel == self.channel:
+        elif message.channel == self.main_channel:
             await self.bot.delete_message(message)
         # if message.content == 'update' and message.channel == self.channel:
             # await self.clear_channel()
@@ -468,6 +497,5 @@ if __name__ == '__main__':
     # print(w._get_game_details(1))
     # print(w.add_bet(23423423, 2, 2, 2))
     # print(str(w.get_player_stats()))
-    # w.update_from_json()
-    # print(w.get_bets_by_player(187266861031882753, True))
-    print(w.update_from_json())
+    w.update_from_json()
+    print(w.get_finished_games())
