@@ -165,7 +165,7 @@ class WorldCup:
                     t.add_row(row)
                     _res.remove(vote)
                     rows += 1
-                    if rows >= 30 or len(_res) == 0:
+                    if rows >= 25 or len(_res) == 0:
                         tables.append(t.get_string())
                         break
             return tables
@@ -407,8 +407,8 @@ class DiscordWorldCup:
         """Shows your bets"""
         author = ctx.message.author
         tables = self.wc.get_bets_by_player(int(author.id), True)
-        for table in tables:
-            await self.bot.send_message(author, '```' + table + '```')
+        for t in tables:
+            await self.bot.send_message(author, '```' + t + '```')
 
     @commands.command(pass_context=True)
     async def betwizard(self, ctx):
@@ -513,5 +513,5 @@ if __name__ == '__main__':
     # print(str(w.get_player_stats()))
     # w.update_from_json()
     for table in w.get_bets_by_player(79711959796162560, True):
-        print(table)
+        print(len(table))
     # print(w.pending)
