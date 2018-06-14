@@ -164,9 +164,6 @@ class WorldCup:
         self.pending = []
         return games
 
-    def get_goals(self, game):
-        pass
-
     def _get_game_details(self, game):
         _code = 'SELECT * FROM games WHERE game="{}";'.format(game)
         self.cursor.execute(_code)
@@ -280,8 +277,7 @@ class DiscordWorldCup:
         self.main_channel = self.server.get_channel(str(self.config['main_channel']))
         self.results_channel = self.server.get_channel(str(self.config['results_channel']))
         self.wc = WorldCup(self.bot.workdir, self.server, self.config['api-token'])
-        loop = asyncio.get_event_loop()
-        loop.create_task(self.start())
+        bot.loop.create_task(self.start())
 
     async def start(self):
         await self.bot.wait_until_ready()
@@ -313,7 +309,7 @@ class DiscordWorldCup:
     async def update_channel(self):
         self.wc.update_from_json()
         self.wc.update_player_points()
-        
+
         finished = self.wc.get_finished_games()
         for game in finished:
             votes = self.wc.get_bets_by_game(game.game)
@@ -332,7 +328,7 @@ class DiscordWorldCup:
                   '{} vs {} : {}\n\n' \
                   '```{}```'.format(team1_flag, team2_flag, game.score, t.get_string())
             logging.info(msg)
-            self.bot.send_message(self.results_channel, msg)
+            await self.bot.send_message(self.results_channel, msg)
 
         messages = await self.get_messages()
         tables = self.wc.get_game_plan()
