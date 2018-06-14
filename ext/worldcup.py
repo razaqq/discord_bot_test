@@ -77,6 +77,7 @@ class WorldCup:
         t.right_padding_width = 1
         t.title = 'Current Bet Points'
         t.field_names = ['Player', 'Points']
+        t.align['Player'] = 'l'
 
         for p in _res:
             id = p[0]
@@ -109,6 +110,9 @@ class WorldCup:
                 if i == 1:
                     t.title = 'WorldCup 2018 Games'
                 t.field_names = ['ID', 'Type', 'Team1', 'Team2', 'Score', 'Date', 'Time']
+                t.align['Type'] = 'l'
+                t.align['Team1'] = 'l'
+                t.align['Team2'] = 'l'
                 for g in games:
                     if table_range[i - 1] < g.game <= table_range[i]:
                         if g.game_type == 'GROUP':
@@ -314,10 +318,10 @@ class DiscordWorldCup:
         for game in finished:
             votes = self.wc.get_bets_by_game(game.game)
             t = PrettyTable()
-            t.align = 'l'
             t.left_padding_width = 1
             t.right_padding_width = 1
             t.field_names = ['Player', 'Bet']
+            t.align['Player'] = 'l'
             for vote in votes:
                 nick = discord.utils.get(self.server.members, id=str(vote[6])).nick
                 row = [nick, '{}:{}'.format(vote[4], vote[5])]
