@@ -313,23 +313,25 @@ class DiscordWorldCup:
     async def update_channel(self):
         self.wc.update_from_json()
         self.wc.update_player_points()
+        
         finished = self.wc.get_finished_games()
         for game in finished:
             votes = self.wc.get_bets_by_game(game.game)
             t = PrettyTable()
             t.left_padding_width = 1
             t.right_padding_width = 1
-            t.title = 'Your bets'
             t.field_names = ['Player', 'Bet']
             for vote in votes:
-                row = [discord.utils.get(self.server.members, id=str(vote[6])).nick, '{}:{}'.format(vote[4], vote[5])]
+                nick = discord.utils.get(self.server.members, id=str(vote[6])).nick
+                row = [nick, '{}:{}'.format(vote[4], vote[5])]
                 t.add_row(row)
 
             team1_flag = self.config[game.team1]
             team2_flag = self.config[game.team2]
             msg = 'Game just ended!\n' \
                   '{} vs {} : {}\n\n' \
-                  '{}'.format(team1_flag, team2_flag, game.score, t.get_string())
+                  '```{}```'.format(team1_flag, team2_flag, game.score, t.get_string())
+            logging.info(msg)
             self.bot.send_message(self.results_channel, msg)
 
         messages = await self.get_messages()
@@ -496,5 +498,5 @@ if __name__ == '__main__':
     # print(w.add_bet(23423423, 2, 2, 2))
     # print(str(w.get_player_stats()))
     w.update_from_json()
-    print(w.get_bets_by_player(79711959796162560, True))
+    # print(w.get_bets_by_player(79711959796162560, True))
     # print(w.pending)
