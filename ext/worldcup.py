@@ -327,7 +327,6 @@ class DiscordWorldCup:
             msg = 'Game just ended!\n' \
                   '{} vs {} : {}\n\n' \
                   '```{}```'.format(team1_flag, team2_flag, game.score, t.get_string())
-            logging.info(msg)
             await self.bot.send_message(self.results_channel, msg)
 
         messages = await self.get_messages()
