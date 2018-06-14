@@ -314,6 +314,7 @@ class DiscordWorldCup:
         for game in finished:
             votes = self.wc.get_bets_by_game(game.game)
             t = PrettyTable()
+            t.align = 'l'
             t.left_padding_width = 1
             t.right_padding_width = 1
             t.field_names = ['Player', 'Bet']
