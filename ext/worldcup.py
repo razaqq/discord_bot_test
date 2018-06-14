@@ -134,7 +134,7 @@ class WorldCup:
         return games
 
     def get_bets_by_player(self, player_id, table=False):
-        _code = "SELECT * FROM votes WHERE player_id={};".format(int(player_id))
+        _code = "SELECT * FROM votes WHERE player_id={};".format(player_id)
         self.cursor.execute(_code)
         _res = self.cursor.fetchall()
         if not table:
@@ -191,18 +191,16 @@ class WorldCup:
             score = '{}:{}'.format(result['goalsHomeTeam'], result['goalsAwayTeam'])
 
             status = match['status']
-            if status != 'FINISHED':
-                finished = False
-            else:
+            if status == 'FINISHED':
                 finished = True
+            else:
+                finished = False
 
             game = GameDetails(self._get_game_details(match_id))
-            if not game.finished and status == 'FINISHED':
+            if not game.finished and finished:
                 self.pending.append(match_id)
-
-            _code = 'UPDATE games SET date="{}", team1="{}", team2="{}", score="{}", finished="{}" WHERE game={}'.format(
-                date, team1, team2, score, finished, match_id
-            )
+            _code = 'UPDATE games SET date="{}", team1="{}", team2="{}", score="{}", finished="{}" WHERE game={}' \
+                    ''.format(date, team1, team2, score, finished, match_id)
             self.cursor.execute(_code)
             self.conn.commit()
 
@@ -271,7 +269,7 @@ class GameDetails:
         self.team1 = details[4]
         self.team2 = details[5]
         self.score = details[6]
-        self.finished = bool(details[7])
+        self.finished = (details[7] == 'True')
 
 
 class DiscordWorldCup:
@@ -393,7 +391,7 @@ class DiscordWorldCup:
     async def bets(self, ctx):
         """Shows your bets"""
         author = ctx.message.author
-        vote_table = self.wc.get_bets_by_player(author.id, True)
+        vote_table = self.wc.get_bets_by_player(int(author.id), True)
         await self.bot.send_message(author, '```' + vote_table + '```')
 
     @commands.command(pass_context=True)
@@ -498,4 +496,5 @@ if __name__ == '__main__':
     # print(w.add_bet(23423423, 2, 2, 2))
     # print(str(w.get_player_stats()))
     w.update_from_json()
-    print(w.get_finished_games())
+    print(w.get_bets_by_player(79711959796162560, True))
+    # print(w.pending)
