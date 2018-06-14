@@ -144,18 +144,31 @@ class WorldCup:
         if not table:
             return _res
         else:
-            t = PrettyTable()
-            t.left_padding_width = 1
-            t.right_padding_width = 1
-            t.title = 'Your bets'
-            t.field_names = ['ID', 'Type', 'Team1', 'Team2', 'Score']
+            total_rows = len(_res)
+            tables = []
 
-            for vote in _res:
-                score = '{}:{}'.format(vote[4], vote[5])
-                row = [vote[0], vote[1], vote[2], vote[3], score]
-                t.add_row(row)
+            while len(_res) > 0:
+                t = PrettyTable()
+                t.left_padding_width = 1
+                t.right_padding_width = 1
+                if len(_res) == total_rows:
+                    t.title = 'Your bets'
+                t.field_names = ['ID', 'Type', 'Team1', 'Team2', 'Score']
+                t.align['Team1'] = 'l'
+                t.align['Team2'] = 'l'
 
-            return t.get_string()
+                rows = 0
+                while True:
+                    vote = _res[0]
+                    score = '{}:{}'.format(vote[4], vote[5])
+                    row = [vote[0], vote[1], vote[2], vote[3], score]
+                    t.add_row(row)
+                    _res.remove(vote)
+                    rows += 1
+                    if rows >= 30 or len(_res) == 0:
+                        tables.append(t.get_string())
+                        break
+            return tables
 
     def get_bets_by_game(self, game):
         _code = "SELECT * FROM votes WHERE game={};".format(game)
@@ -497,6 +510,7 @@ if __name__ == '__main__':
     # print(w._get_game_details(1))
     # print(w.add_bet(23423423, 2, 2, 2))
     # print(str(w.get_player_stats()))
-    w.update_from_json()
-    # print(w.get_bets_by_player(79711959796162560, True))
+    # w.update_from_json()
+    for table in w.get_bets_by_player(79711959796162560, True):
+        print(table)
     # print(w.pending)
