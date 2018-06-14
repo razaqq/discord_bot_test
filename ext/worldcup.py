@@ -406,8 +406,9 @@ class DiscordWorldCup:
     async def bets(self, ctx):
         """Shows your bets"""
         author = ctx.message.author
-        vote_table = self.wc.get_bets_by_player(int(author.id), True)
-        await self.bot.send_message(author, '```' + vote_table + '```')
+        tables = self.wc.get_bets_by_player(int(author.id), True)
+        for table in tables:
+            await self.bot.send_message(author, '```' + table + '```')
 
     @commands.command(pass_context=True)
     async def betwizard(self, ctx):
