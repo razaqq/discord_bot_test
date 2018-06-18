@@ -358,7 +358,8 @@ class DiscordWorldCup:
         msg = 'Commands for FIFA WorldCup 2018:\n\n' \
               '!bet <gameid> <score1>:<score2>, ex: !bet 12 3:3 - to save a vote\n' \
               '!betwizard - for doing them quick and easy\n' \
-              '!bets - to see your saved bets\n\n' \
+              '!bets - to see your saved bets\n' \
+              '!wcupdate - updates tables from api, dont overuse k thx\n\n' \
               'You get 1 point for guessing the correct winner (or draw) and 3 points for the correct score\n' \
               'Means you can get 0, 1 or 3 points per game, which results in a total maximum of 192 points\n\n' \
               'Tables in this channel will update every 30 minutes, texting is disabled\n' \
@@ -401,6 +402,11 @@ class DiscordWorldCup:
                 await self.bot.say('Usage: !bet <id> <score1>:<score2>, ex: !bet 24 3:3')
         else:
             await self.bot.say('Usage: !bet <id> <score1>:<score2>, ex: !bet 24 3:3')
+
+    @commands.command()
+    async def wcupdate(self):
+        """Updates tables etc."""
+        await self.update_channel()
 
     @commands.command(pass_context=True)
     async def bets(self, ctx):
