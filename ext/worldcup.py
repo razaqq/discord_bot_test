@@ -352,7 +352,7 @@ class DiscordWorldCup:
         self.main_channel = self.server.get_channel(str(self.config['main_channel']))
         self.results_channel = self.server.get_channel(str(self.config['results_channel']))
         self.wc = WorldCup(self.bot.workdir, self.server, self.config['api-token'])
-        bot.loop.create_task(self.start())
+        # bot.loop.create_task(self.start())
 
     async def start(self):
         await self.bot.wait_until_ready()
