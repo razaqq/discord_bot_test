@@ -273,6 +273,64 @@ class WorldCup:
         with open('C:/Users/fabio/PycharmProjects/discord_bot/config/worldcup.json', 'w', encoding='utf-8') as wc:
             return json.dump(dic, wc, indent=2)
 
+    def get_group_tables(self):
+        def add_points(dic, team, p, played=False):
+            if team in dic and played:
+                dic[team][0] += p
+                dic[team][1] += 1
+            elif team not in dic and played:
+                dic[team] = [p, 1]
+            elif team not in dic and not played:
+                dic[team] = [p, 0]
+
+        gptables = []
+        for group in ('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'):
+            self.cursor.execute(
+                'SELECT team1, team2, score, finished FROM games WHERE game_type="GROUP"'
+                ' AND game_details=?', group
+            )
+            gpres = self.cursor.fetchall()
+            teams = {}
+            for res in gpres:
+                if res[3] == 'False':
+                    add_points(teams, res[0], 0)
+                    add_points(teams, res[1], 0)
+                    continue
+                s = [int(x) for x in res[2].split(':')]
+                if s[0] == s[1]:
+                    add_points(teams, res[0], 1, True)
+                    add_points(teams, res[1], 1, True)
+                elif s[0] > s[1]:
+                    add_points(teams, res[0], 3, True)
+                    add_points(teams, res[1], 0, True)
+                else:
+                    add_points(teams, res[0], 0, True)
+                    add_points(teams, res[1], 3, True)
+
+            t = PrettyTable()
+            t.title = 'Group {}'.format(group)
+            t.field_names = ['Team', 'Points', 'Games']
+            t.align = 'l'
+            t.sortby = 'Points'
+            t.left_padding_width = 0
+            t.right_padding_width = 0
+            for team in teams:
+                t.add_row([team, teams[team][0], teams[team][1]])
+
+            gptables.append(t.get_string(sortby='Points', reversesort=True))
+
+        strings = []
+        for i in range(0, len(gptables), 4):
+            s = ''
+            t1 = gptables[i].split('\n')
+            t2 = gptables[i + 1].split('\n')
+            t3 = gptables[i + 2].split('\n')
+            t4 = gptables[i + 3].split('\n')
+            for j in range(len(t1)):
+                s += '{} {} {} {}\n'.format(t1[j], t2[j], t3[j], t4[j])
+            strings.append(s)
+        return strings
+
 
 class GameDetails:
     def __init__(self, details):
@@ -353,7 +411,12 @@ class DiscordWorldCup:
             m = messages[tables.index(table)]
             await self.bot.edit_message(m, '```' + str(table) + '```')
             await asyncio.sleep(1.2)
-        await self.bot.edit_message(messages[4], '```' + str(self.wc.get_player_stats()) + '```')
+        tables = self.wc.get_group_tables()
+        for table in tables:
+            m = messages[tables.index(table) + 4]
+            await self.bot.edit_message(m, '```' + table + '```')
+            await asyncio.sleep(1.2)
+        await self.bot.edit_message(messages[6], '```' + str(self.wc.get_player_stats()) + '```')
         await asyncio.sleep(1.2)
         msg = 'Commands for FIFA WorldCup 2018:\n\n' \
               '!bet <gameid> <score1>:<score2>, ex: !bet 12 3:3 - to save a vote\n' \
@@ -364,7 +427,7 @@ class DiscordWorldCup:
               'Means you can get 0, 1 or 3 points per game, which results in a total maximum of 192 points\n\n' \
               'Tables in this channel will update every 30 minutes, texting is disabled\n' \
               'last update: {}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-        await self.bot.edit_message(messages[5], '```' + msg + '```')
+        await self.bot.edit_message(messages[7], '```' + msg + '```')
 
     async def get_messages(self):
         messages = []
@@ -518,6 +581,6 @@ if __name__ == '__main__':
     # print(w.add_bet(23423423, 2, 2, 2))
     # print(str(w.get_player_stats()))
     # w.update_from_json()
-    for table in w.get_bets_by_player(79711959796162560, True):
-        print(len(table))
+    for table in w.get_group_tables():
+        print(table)
     # print(w.pending)
