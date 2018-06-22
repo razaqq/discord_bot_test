@@ -1,9 +1,12 @@
+import discord
 from discord.ext import commands
 import traceback
 import json
 from prettytable import PrettyTable
 import os
 import logging
+import requests
+import base64
 
 
 class Admin:
@@ -11,6 +14,12 @@ class Admin:
         self.bot = bot
         self.config = self.bot.config
         self.admins = self.load_admin_config()
+
+    def is_admin(self, user):
+        if int(user.id) in self.admins:
+            return True
+        else:
+            return False
 
     def write_main_config(self):
         with open(self.bot.workdir + '/config/main.json', 'w', encoding='utf-8') as main_config:
@@ -161,11 +170,57 @@ class Admin:
         else:
             await self.bot.say("You don't have permissions")
 
-    def is_admin(self, user):
-        if int(user.id) in self.admins:
-            return True
+    @commands.group(pass_context=True)
+    async def presence(self, ctx):
+        if ctx.invoked_subcommand is None:
+            await self.bot.say('Invalid presence command passed...')
+
+    @presence.command()
+    async def rename(self, *, name=""):
+        if name == '':
+            await self.bot.say('A man must have a name')
+            return
+        try:
+            await self.bot.edit_profile(username=name.strip())
+            await self.bot.say('\N{OK HAND SIGN}')
+            logging.info('Nickname changed to {} by {}')
+        except discord.HTTPException as e:
+            await self.bot.say('Failed to rename: {}'.format(e))
+            logging.error(traceback.format_exc())
+        except discord.ClientException:
+            await self.bot.say('Password required')
+            logging.error(traceback.format_exc())
+
+    @presence.command()
+    async def avatar(self, url):
+        response = requests.get(url)
+        try:
+            await self.bot.edit_profile(avatar=response.content)
+            await self.bot.say('\N{OK HAND SIGN}')
+        except discord.HTTPException as e:
+            await self.bot.say('Failed change avatar: {}'.format(e))
+            logging.error(traceback.format_exc())
+        except discord.InvalidArgument:
+            await self.bot.say('Wrong image format, allowed: JPEG & PNG')
+            logging.error(traceback.format_exc())
+        except discord.ClientException:
+            await self.bot.say('password required')
+            logging.error(traceback.format_exc())
+
+    @presence.command(pass_context=True, enabled=False, hidden=True, no_pm=True)
+    async def game(self, ctx, *, game=None):
+        author = ctx.message.author
+        if self.is_admin(author):
+            if game:
+                game = game.strip()
+                await self.bot.change_presence(game=discord.Game(name=game))
+                logging.log(20, 'Status set to "{}" by owner'.format(game))
+            else:
+                await self.bot.change_presence(game=None)
+                logging.log(20, 'status cleared by {}'.format(author.name))
+                await self.bot.say('\N{OK HAND SIGN}')
         else:
-            return False
+            await self.bot.say("You don't have permissions")
 
 
 def setup(bot):
