@@ -469,6 +469,7 @@ class DiscordWorldCup:
     @commands.command()
     async def wcupdate(self):
         """Updates tables etc."""
+        await self.bot.say('Updating...')
         await self.update_channel()
 
     @commands.command(pass_context=True)
