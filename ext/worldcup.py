@@ -469,8 +469,11 @@ class DiscordWorldCup:
     @commands.command()
     async def wcupdate(self):
         """Updates tables etc."""
-        await self.bot.say('Updating...')
+        msg = await self.bot.say('Updating...')
         await self.update_channel()
+        if msg.channel == self.main_channel:
+            await asyncio.sleep(3)
+            await self.bot.delete_message(msg)
 
     @commands.command(pass_context=True)
     async def bets(self, ctx):
