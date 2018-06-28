@@ -616,7 +616,7 @@ class DiscordWorldCup:
     @commands.command(pass_context=True)
     async def wcwinner(self, ctx, team=None):
         if team:
-            await self.bot.say(self.wc.bet_winner(ctx.author.id, team))
+            await self.bot.say(self.wc.bet_winner(int(ctx.author.id), team))
         else:
             await self.bot.say('Usage: !wcwinner <team>')
 
