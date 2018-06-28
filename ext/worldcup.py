@@ -138,7 +138,7 @@ class WorldCup:
         return games
 
     def get_bets_by_player(self, player_id, table=False):
-        _code = "SELECT * FROM votes WHERE player_id={};".format(player_id)
+        _code = "SELECT * FROM votes WHERE player_id={} ORDER BY game ASC".format(player_id)
         self.cursor.execute(_code)
         _res = self.cursor.fetchall()
         if not table:
@@ -146,6 +146,7 @@ class WorldCup:
         else:
             total_rows = len(_res)
             tables = []
+            winner = None
 
             while len(_res) > 0:
                 t = PrettyTable()
@@ -159,17 +160,26 @@ class WorldCup:
 
                 rows = 0
                 while True:
+                    if rows >= 25 or len(_res) == 0:
+                        tables.append(t.get_string())
+                        break
                     vote = _res[0]
                     if vote[0] == 999:
+                        winner = vote[2]
+                        _res.remove(vote)
                         continue
                     score = '{}:{}'.format(vote[4], vote[5])
                     row = [vote[0], vote[1], vote[2], vote[3], score]
                     t.add_row(row)
                     _res.remove(vote)
                     rows += 1
-                    if rows >= 25 or len(_res) == 0:
-                        tables.append(t.get_string())
-                        break
+            if winner:
+                w = PrettyTable()
+                w.left_padding_width = 1
+                w.right_padding_width = 1
+                w.field_names = ['Your winner bet']
+                w.add_row([winner])
+                tables.append(w.get_string())
             return tables
 
     def get_bets_by_game(self, game):
@@ -635,5 +645,8 @@ if __name__ == '__main__':
     # print(w.add_bet(23423423, 2, 2, 2))
     # print(str(w.get_player_stats()))
     # w.update_from_json()
-    # print(w.bet_winner(12345, 'Russia'))
     # print(w.pending)
+    lala = w.get_bets_by_player(79711959796162560, True)
+    # lala.reverse()
+    for t in lala:
+        print(t)
