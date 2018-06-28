@@ -160,6 +160,8 @@ class WorldCup:
                 rows = 0
                 while True:
                     vote = _res[0]
+                    if vote[0] == 999:
+                        continue
                     score = '{}:{}'.format(vote[4], vote[5])
                     row = [vote[0], vote[1], vote[2], vote[3], score]
                     t.add_row(row)
@@ -228,10 +230,26 @@ class WorldCup:
         for game in games:
             if game.score == 'None:None':
                 continue
+
             bets = self.get_bets_by_game(game.game)
             score = game.score.split(':')
             t1_score = int(score[0])
             t2_score = int(score[1])
+
+            # bonus points for final
+            if game.game_details == 'Final':
+                if game.finished:
+                    winner = game.team1 if int(game.score.split(':')[0]) > int(game.score.split(':')[1]) else game.team2
+                    bets = self.get_bets_by_game(999)
+                    for bet in bets:
+                        player = bet[6]
+                        guessed_winner = bet[2]
+                        if winner == guessed_winner:
+                            if player in player_points:
+                                player_points[player] += 10
+                            else:
+                                player_points[player] = 10
+
             for bet in bets:
                 player = bet[6]
                 t1_bet_score = bet[4]
@@ -330,6 +348,29 @@ class WorldCup:
                 s += '{} {} {} {}\n'.format(t1[j], t2[j], t3[j], t4[j])
             strings.append(s)
         return strings
+
+    def bet_winner(self, player_id, team):
+        if datetime.datetime.now() > datetime.datetime.strptime('2018-06-30 16:00:00.000000', "%Y-%m-%d %H:%M:%S.%f"):
+            return 'Its too late to bet a tournament winner'
+        self.cursor.execute('SELECT team1, team2 from games')
+        res = self.cursor.fetchall()
+        teams = []
+        for game in res:
+            for t in game:
+                if t != '' and t not in teams:
+                    teams.append(t)
+        if team not in teams:
+            return 'That team doesnt exist. Valid teams are: \n {}'.format(teams)
+        self.cursor.execute('SELECT team1 FROM votes WHERE game=999 AND player_id=?', (player_id,))
+        res = self.cursor.fetchall()
+        if len(res) > 0:
+            self.cursor.execute('UPDATE votes SET team1=? WHERE game=999 AND player_id=?', (team, player_id))
+            self.conn.commit()
+            return 'I updated your winner bet from {} to {}'.format(res[0][0], team)
+        else:
+            self.cursor.execute("INSERT INTO votes (game, team1, player_id) VALUES (999, ?, ?)", (team, player_id))
+            self.conn.commit()
+            return 'I added your winner bet.'
 
 
 class GameDetails:
@@ -572,6 +613,13 @@ class DiscordWorldCup:
         else:
             return await self.bot.send_message(author, 'That failed, please restart')
 
+    @commands.command(pass_context=True)
+    async def wcwinner(self, ctx, team=None):
+        if team:
+            await self.bot.say(self.wc.bet_winner(ctx.author.id, team))
+        else:
+            await self.bot.say('Usage: !wcwinner <team>')
+
 
 def setup(bot):
     d = DiscordWorldCup(bot)
@@ -585,6 +633,5 @@ if __name__ == '__main__':
     # print(w.add_bet(23423423, 2, 2, 2))
     # print(str(w.get_player_stats()))
     # w.update_from_json()
-    for table in w.get_group_tables():
-        print(table)
+    #print(w.bet_winner(12345, 'Russia'))
     # print(w.pending)
