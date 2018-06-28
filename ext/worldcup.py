@@ -246,9 +246,9 @@ class WorldCup:
                         guessed_winner = bet[2]
                         if winner == guessed_winner:
                             if player in player_points:
-                                player_points[player] += 10
+                                player_points[player] += 6
                             else:
-                                player_points[player] = 10
+                                player_points[player] = 6
 
             for bet in bets:
                 player = bet[6]
@@ -463,9 +463,10 @@ class DiscordWorldCup:
               '!bet <gameid> <score1>:<score2>, ex: !bet 12 3:3 - to save a vote\n' \
               '!betwizard - for doing them quick and easy\n' \
               '!bets - to see your saved bets\n' \
+              '!wcwinner <team> - to bet a winner\n' \
               '!wcupdate - updates tables from api, dont overuse k thx\n\n' \
               'You get 1 point for guessing the correct winner (or draw) and 3 points for the correct score\n' \
-              'Means you can get 0, 1 or 3 points per game, which results in a total maximum of 192 points\n\n' \
+              'Means you can get 0, 1 or 3 points per game and 6 points if you guess right tournament winner\n\n' \
               'Tables in this channel will update every 30 minutes, texting is disabled\n' \
               'last update: {}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         await self.bot.edit_message(messages[7], '```' + msg + '```')
@@ -634,5 +635,5 @@ if __name__ == '__main__':
     # print(w.add_bet(23423423, 2, 2, 2))
     # print(str(w.get_player_stats()))
     # w.update_from_json()
-    #print(w.bet_winner(12345, 'Russia'))
+    # print(w.bet_winner(12345, 'Russia'))
     # print(w.pending)
