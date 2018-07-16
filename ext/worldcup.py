@@ -456,6 +456,20 @@ class DiscordWorldCup:
             msg = 'Game just ended!\n' \
                   '{} vs {} : {}\n\n' \
                   '```{}```'.format(team1_flag, team2_flag, game.score, t.get_string())
+
+            if game.game_details == 'Final':
+                t = PrettyTable()
+                t.left_padding_width = 1
+                t.right_padding_width = 1
+                t.field_names = ['Player', 'WCWinner Bet']
+                t.align['Player'] = 'l'
+                votes = self.wc.get_bets_by_game(999)
+                for vote in votes:
+                    nick = discord.utils.get(self.server.members, id=str(vote[6])).nick
+                    row = [nick, vote[2]]
+                    t.add_row(row)
+                msg += '\n```{}```'.format(t)
+
             await self.bot.send_message(self.results_channel, msg)
 
         messages = await self.get_messages()
