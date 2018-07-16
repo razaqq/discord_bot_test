@@ -264,7 +264,7 @@ class WorldCup:
                 player = bet[6]
                 t1_bet_score = bet[4]
                 t2_bet_score = bet[5]
-                if not t1_bet_score or not t2_bet_score:
+                if not t1_bet_score and not t2_bet_score:
                     continue
                 correct_score = t1_bet_score == t1_score and t2_bet_score == t2_score
                 correct_winner = (t1_bet_score > t2_bet_score and t1_score > t2_score) or \
@@ -648,10 +648,8 @@ if __name__ == '__main__':
     # print(str(w.get_player_stats()))
     # w.update_from_json()
     # print(w.pending)
-    # lala = w.get_bets_by_player(79711959796162560, True)
+    #lala = w.get_bets_by_player(79711959796162560, True)
     # lala.reverse()
-    # for t in lala:
-        # print(t)
-    w.update_from_json()
+    #w.update_from_json()
     w.update_player_points()
 
