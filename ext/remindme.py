@@ -3,6 +3,8 @@ from discord.ext import commands
 import time
 import sqlite3
 import asyncio
+from prettytable import PrettyTable
+import datetime
 
 
 class RemindMe:
@@ -17,12 +19,13 @@ class RemindMe:
 
         self.conn = sqlite3.connect(self.bot.workdir + '/databases/remindme.db')
         self.cursor = self.conn.cursor()
-        self.reminders = []
+        self.saved_reminders = []
         self.read_reminders()
 
     def read_reminders(self):
-        read_untill = time.time() + (60*60*25)  # read reminders of next 25h
-        _code = 'SELECT * FROM reminders WHERE FINISHES<{};'.format(read_untill)
+        # read_untill = time.time() + (60*60*25)  # read reminders of next 25h
+        # _code = 'SELECT * FROM reminders WHERE FINISHES<{};'.format(read_untill)
+        _code = 'SELECT * FROM reminders;'
         self.cursor.execute(_code)
         _res = self.cursor.fetchall()
         reminders = []
@@ -34,15 +37,15 @@ class RemindMe:
             reminder['FINISHES'] = int(res[3])
             reminder['MESSAGE'] = res[4]
             reminders.append(reminder)
-        self.reminders = reminders
+        self.saved_reminders = reminders
 
     def add_reminder(self, user, server, channel, finishes, text):
         try:
             _code = 'INSERT INTO reminders VALUES ("{}", "{}", "{}", {}, "{}")'.format(user, server, channel, finishes, text)
             self.cursor.execute(_code)
             self.conn.commit()
-            if finishes < (time.time() + 60*60*25):  # only read reminders, if added one finishes in next 25h
-                self.read_reminders()
+            # if finishes < (time.time() + 60*60*25):  # only read reminders, if added one finishes in next 25h
+            self.read_reminders()
             return True
         except Exception:
             return False
@@ -58,6 +61,9 @@ class RemindMe:
         self.cursor.execute(_code)
         self.conn.commit()
         self.read_reminders()
+
+    def get_reminders(self, user):
+        return [(r['FINISHES'], r['MESSAGE']) for r in self.saved_reminders if r['USER'] == user]
 
     @commands.command(pass_context=True, no_pm=True)
     async def remindme(self, ctx, quantity: int=0, time_unit: str=None, *, text: str=None):
@@ -86,9 +92,33 @@ class RemindMe:
         self.remove_all_reminders(user)
         await self.bot.say('\N{OK HAND SIGN}')
 
+    @commands.command(pass_context=True, no_pm=True)
+    async def reminders(self, ctx):
+        user = ctx.message.author.id
+        res = self.get_reminders(user)
+        if not res:
+            await self.bot.say('No reminders saved for you!')
+            return
+
+        t = PrettyTable()
+        t.left_padding_width = 1
+        t.right_padding_width = 1
+        t.title = 'Your reminders'
+        t.field_names = ['Time left', 'Msg']
+        t.align['Time left'] = 'r'
+        t.align['Msg'] = 'l'
+
+        for r in res:
+            time_str = '{:0>8}'.format(str(datetime.timedelta(seconds=r[0] - int(time.time()))))
+
+            row = [time_str, r[1]]
+            t.add_row(row)
+
+        await self.bot.say('```{}```'.format(t.get_string()))
+
     async def check_reminders(self):
         while self is self.bot.get_cog('RemindMe'):
-            for reminder in self.reminders:
+            for reminder in self.saved_reminders:
                 if reminder['FINISHES'] <= int(time.time()):
                     all_servers = self.bot.servers
                     server = discord.utils.get(all_servers, id=str(reminder['SERVER']))
@@ -104,3 +134,9 @@ def setup(bot):
     loop = asyncio.get_event_loop()
     loop.create_task(r.check_reminders())
     bot.add_cog(r)
+
+
+if __name__ == '__main__':
+    bot = commands.Bot('?')
+    r = RemindMe(bot)
+    r.get_reminders(104901117158121472)
