@@ -34,4 +34,4 @@ if __name__ == '__main__':
         n = Notify()
         n.poke_all("Server Restart in {} Minute{}!".format(args.time, plural))
     else:
-        print('Please specify a time with "-time <mins>"')
+        print('Please specify a time with "-time <minutes>"')
