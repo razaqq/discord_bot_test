@@ -117,6 +117,7 @@ class Bot(commands.Bot):
 if __name__ == '__main__':
     bot = Bot('/config/main.json')
     loop = asyncio.get_event_loop()
+
     try:
         loop.run_until_complete(bot.run())
     except discord.LoginFailure:

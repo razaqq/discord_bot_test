@@ -112,7 +112,6 @@ class RemindMe:
         for r in res:
             time_str = '{:0>8}'.format(str(datetime.timedelta(seconds=r[0] - int(time.time()))))
             text_rows = ceil(len(r[1]) / 80)
-            print(text_rows)
             row = [time_str, r[1][:80]]
             t.add_row(row)
             for i in range(1, text_rows):
