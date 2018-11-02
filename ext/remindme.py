@@ -5,6 +5,7 @@ import sqlite3
 import asyncio
 from prettytable import PrettyTable
 import datetime
+from math import ceil
 
 
 class RemindMe:
@@ -110,9 +111,14 @@ class RemindMe:
 
         for r in res:
             time_str = '{:0>8}'.format(str(datetime.timedelta(seconds=r[0] - int(time.time()))))
-
-            row = [time_str, r[1]]
+            text_rows = ceil(len(r[1]) / 60)
+            print(text_rows)
+            row = [time_str, r[1][:60]]
             t.add_row(row)
+            for i in range(1, text_rows):
+                row = ['', r[1][60*i:60*(i+1)]]
+                t.add_row(row)
+
 
         await self.bot.say('```{}```'.format(t.get_string()))
 
