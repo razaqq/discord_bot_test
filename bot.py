@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/local/bin/python3.7
 
 import asyncio
 import datetime
@@ -10,6 +10,7 @@ import traceback
 import discord
 from discord.ext import commands
 from contextlib import suppress
+import sys
 
 
 class Bot(commands.Bot):
@@ -102,11 +103,15 @@ class Bot(commands.Bot):
     def log_setup(self):
         logger = logging.getLogger()
         logger.setLevel(logging.INFO)
-        handler = RotatingFileHandler(self.workdir + '/logs/discord_bot.log', maxBytes=100000, backupCount=5)
+        file_handler = RotatingFileHandler(self.workdir + '/logs/discord_bot.log', maxBytes=100000, backupCount=5)
         formatter = logging.Formatter('%(asctime)s - %(module)-10s - %(levelname)-5s -> %(message)s',
                                       datefmt='%d-%m|%H:%M')
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+        stdout_handler = logging.StreamHandler(sys.stdout)
+        stdout_handler.setLevel(logging.DEBUG)
+        stdout_handler.setFormatter(formatter)
+        logger.addHandler(stdout_handler)
 
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
-#!/usr/local/bin/python3
+#!/usr/local/bin/python3.7
+
 from ts3_mod import server
 import argparse
 import os
