@@ -34,6 +34,7 @@ class Convert:
 
     @commands.command()
     async def convert(self, amount1, unit1, unit2):
+        """Converts length units from meters to a subhuman unit and back"""
         await self.bot.say(self._convert(amount1, unit1, unit2))
 
     def _convert(self, amount1, unit1, unit2):
