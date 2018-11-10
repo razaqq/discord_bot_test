@@ -118,7 +118,6 @@ class RemindMe:
                 row = ['', r[1][80*i:80*(i+1)]]
                 t.add_row(row)
 
-
         await self.bot.say('```{}```'.format(t.get_string()))
 
     async def check_reminders(self):

@@ -144,7 +144,7 @@ class Admin:
         t.right_padding_width = 0
         # t.title =('Currently loaded extensions')
         t.align = "r"
-        t.field_names = ['Extension', 'Status', 'Loaded']
+        t.field_names = ['Extension', 'Load on startup', 'Loaded']
         t.align = "r"
         await self.bot.say('```{}```'.format(t))
 
