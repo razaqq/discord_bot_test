@@ -128,7 +128,7 @@ if __name__ == '__main__':
         logging.error(e)
     finally:
         pending = asyncio.Task.all_tasks(loop)
-        for task in pending:
+        for task in pending:  # cancel all tasks
             task.cancel()
             with suppress(asyncio.CancelledError):
                 loop.run_until_complete(task)
