@@ -34,6 +34,7 @@ class Convert:
 
     @commands.command()
     async def convert(self, amount1, unit1, unit2):
+        """Converts length units from meters to a subhuman unit and back"""
         await self.bot.say(self._convert(amount1, unit1, unit2))
 
     def _convert(self, amount1, unit1, unit2):
@@ -45,7 +46,7 @@ class Convert:
             amount1 = float(amount1)
         except ValueError:
             return self.usage
-        if unit1 not in self.units or unit2 not in self.units:
+        if unit1 not in self.to_meter or unit2 not in self.to_meter:
             return 'Allowed units are: {}'.format(self.units)
         meters = amount1 * self.to_meter[unit1]
         return '{} {} = {} {}'.format(amount1, unit1, round(meters / self.to_meter[unit2], 3), unit2)
