@@ -12,7 +12,7 @@ class Bomb:
         self.prefix = self.bot.config['prefix']
 
     def load_config(self):
-        with open(self.bot.workdir + '/config/bomb.json', 'r', encoding='utf-8') as doc:
+        with open(self.bot.root_dir + '/config/bomb.json', 'r', encoding='utf-8') as doc:
             return json.load(doc)
 
     @commands.command(pass_context=True)

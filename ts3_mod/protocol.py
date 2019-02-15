@@ -3,7 +3,7 @@ import telnetlib
 from threading import Lock
 
 
-class ConnectionError(Exception):
+class TSConnectionError(Exception):
     def __init__(self, ip, port):
         self.ip = ip
         self.port = port
@@ -38,7 +38,7 @@ ts3_escape = [
 ]
 
 
-class TS3Response():
+class TS3Response:
     def __init__(self, response, data):
         self.response = TS3Proto.parse_response(response)
         self.data = TS3Proto.parse_data(data)
@@ -72,7 +72,7 @@ class TS3Proto:
             try:
                 self._telnet = telnetlib.Telnet(ip, port)
             except telnetlib.socket.error:
-                raise ConnectionError(ip, port)
+                raise TSConnectionError(ip, port)
 
             self._timeout = timeout
             self._connected = False

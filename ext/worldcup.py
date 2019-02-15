@@ -11,8 +11,8 @@ import logging
 
 
 class WorldCup:
-    def __init__(self, workdir, server, api_key):
-        self.conn = sqlite3.connect('{}/databases/worldcup.db'.format(workdir))
+    def __init__(self, root_dir, server, api_key):
+        self.conn = sqlite3.connect('{}/databases/worldcup.db'.format(root_dir))
         self.cursor = self.conn.cursor()
         self.url = 'http://api.football-data.org/v1/competitions/467/fixtures'
         self.pending = []
@@ -400,11 +400,11 @@ class GameDetails:
 class DiscordWorldCup:
     def __init__(self, bot):
         self.bot = bot
-        self.config = self.load_config(self.bot.workdir)
+        self.config = self.load_config(self.bot.root_dir)
         self.server = discord.utils.get(self.bot.servers, id=str(self.config['server']))
         self.main_channel = self.server.get_channel(str(self.config['main_channel']))
         self.results_channel = self.server.get_channel(str(self.config['results_channel']))
-        self.wc = WorldCup(self.bot.workdir, self.server, self.config['api-token'])
+        self.wc = WorldCup(self.bot.root_dir, self.server, self.config['api-token'])
         # bot.loop.create_task(self.start())
 
     async def start(self):
@@ -422,8 +422,8 @@ class DiscordWorldCup:
             await asyncio.sleep(30 * 60)
 
     @staticmethod
-    def load_config(workdir):
-        with open(workdir + '/config/worldcup.json', 'r', encoding='utf-8') as doc:
+    def load_config(root_dir):
+        with open(root_dir + '/config/worldcup.json', 'r', encoding='utf-8') as doc:
             return json.load(doc)
 
     async def clear_channel(self):
@@ -662,8 +662,8 @@ if __name__ == '__main__':
     # print(str(w.get_player_stats()))
     # w.update_from_json()
     # print(w.pending)
-    #lala = w.get_bets_by_player(79711959796162560, True)
+    # lala = w.get_bets_by_player(79711959796162560, True)
     # lala.reverse()
-    #w.update_from_json()
+    # w.update_from_json()
     w.update_player_points()
 
