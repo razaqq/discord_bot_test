@@ -80,6 +80,23 @@ class TS3Server(TS3Proto):
             self.logger.debug("clientlist - error retrieving client list")
             return {}
 
+    def clientdblist(self):
+        """
+        Returns a clientlist of the current connected server/vhost
+        """
+
+        response = self.send_command('clientdblist')
+
+        if response.is_successful:
+            clientdblist = {}
+            for client in response.data:
+                clientdblist[client['cldbid']] = client
+            return clientdblist
+        else:
+            # TODO: Raise a exception?
+            self.logger.debug("clientlist - error retrieving client list")
+            return {}
+
     def channellist(self):
         """
         Returns a channellist of the current connected server/vhost
@@ -206,27 +223,68 @@ class TS3Server(TS3Proto):
         tree = '```' + tree + '```'
         return tree
 
-    def get_cids(self, name):
+    def get_clids(self, name):
+        """Gets the clid to a name in the list of online users"""
         _clientlist = self.clientlist()
-        clids = ()
-        for client in _clientlist.values():  # perry please fix this spaghetticode
+        clids = []
+        for client in _clientlist.values():
             client_nickname = client['client_nickname']
-            if name == client_nickname:
-                clids += (client['clid'],)
-        if clids != ():
-            return clids
-        else:
-            self.logger.debug("get_cid - no client with specified name (%s) was found" % name)
-            return None
+            if name.lower() == client_nickname.lower():
+                clids.append(client['clid'])
+        return clids
+
+    def get_dbclids(self, name):
+        """Gets the clid to a name in the list of database users"""
+        _clientlist = self.clientdblist()
+        cldbids = []
+        for client in _clientlist.values():
+            client_nickname = client['client_nickname']
+            if name.lower() == client_nickname.lower():
+                cldbids.append(client['cldbid'])
+        return cldbids
 
     def set_client_nick(self, name):
         response = self.send_command('clientupdate', keys={'client_nickname': name})
         return response.is_successful
 
-    def clientdblist(self):
-        response = self.send_command('clientdblist')
-        return response.data
-
     def clientmove(self, clid, cid):
         response = self.send_command('clientmove', keys={'clid': clid, 'cid': cid})
+        return response.is_successful
+
+    def get_clientinfo(self, clid):
+        response = self.send_command('clientinfo', keys={'clid': clid})
+        if response.is_successful:
+            return response.data[0]
+        else:
+            return None
+
+    def get_clientdbinfo(self, cldbid):
+        response = self.send_command('clientdbinfo', keys={'cldbid': cldbid})
+        if response.is_successful:
+            return response.data[0]
+        else:
+            return None
+
+    def is_online(self, cldbid):
+        _clientlist = self.clientlist()
+        found = False
+        for client in _clientlist.values():
+            if client['client_database_id'] == cldbid:
+                found = True
+                break
+        return found
+
+    def move_afk(self, timeout, afk_channel):
+        _clientlist = self.clientlist()
+        for client in _clientlist.values():
+            if int(client['client_type']) != 0 or client['cid'] == afk_channel:
+                continue
+            else:
+                idle_time = int(int(self.get_clientinfo(client['clid'])['client_idle_time'])/1000)
+                if idle_time > int(timeout):
+                    self.sendtextmessage(1, client['clid'], "You have been moved to the afk channel for inactivity")
+                    self.clientmove(client['clid'], afk_channel)
+
+    def sendtextmessage(self, targetmode, target, msg):
+        response = self.send_command('sendtextmessage', keys={'targetmode': targetmode, 'target': target, 'msg': msg})
         return response.is_successful

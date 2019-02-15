@@ -18,11 +18,11 @@ tweets = []
 class TrumpTwitter:
     def __init__(self, bot):
         self.bot = bot
-        self.config = self.load_config(self.bot.workdir)
+        self.config = self.load_config(self.bot.root_dir)
 
     @staticmethod
-    def load_config(workdir):
-        with open(workdir + '/config/trump_twitter.json', 'r', encoding='utf-8') as doc:
+    def load_config(root_dir):
+        with open(root_dir + '/config/trump_twitter.json', 'r', encoding='utf-8') as doc:
             return json.load(doc)
 
     def start_stream(self):

@@ -9,9 +9,9 @@ from datetime import datetime
 
 
 class TrumpQuote:
-    def __init__(self, workdir):
+    def __init__(self, root_dir):
         # sqlite
-        self.conn = sqlite3.connect('{}/databases/trump_quotes.db'.format(workdir))
+        self.conn = sqlite3.connect('{}/databases/trump_quotes.db'.format(root_dir))
         self.cursor = self.conn.cursor()
 
         self.text = None
@@ -22,7 +22,7 @@ class TrumpQuote:
         self.total_votes = 0
         self.msg = None
         self.start_time = time.time()
-        self.stats = Stats(workdir)
+        self.stats = Stats(root_dir)
         self.votes = {}
 
     def get_quote(self):
@@ -85,9 +85,9 @@ class TrumpQuote:
 
 
 class Stats:
-    def __init__(self, workdir):
+    def __init__(self, root_dir):
         # sqlite
-        self.conn = sqlite3.connect('{}/databases/trump_quotes.db'.format(workdir))
+        self.conn = sqlite3.connect('{}/databases/trump_quotes.db'.format(root_dir))
         self.cursor = self.conn.cursor()
 
         self.stats = {}
@@ -155,7 +155,7 @@ class DiscordTrumpQuote:
         if ctx.invoked_subcommand is None:
             if self.last_quote is not None:  # does a quote exist?
                 await self.bot.delete_message(self.last_quote)  # remove old quote
-            q = TrumpQuote(self.bot.workdir)
+            q = TrumpQuote(self.bot.root_dir)
             self.last_quote = await self.bot.say(q.text)
 
             await self.bot.add_reaction(self.last_quote, '👍')
@@ -177,7 +177,7 @@ class DiscordTrumpQuote:
     @trump.command()
     async def stats(self):
         """Shows stats"""
-        s = Stats(self.bot.workdir)
+        s = Stats(self.bot.root_dir)
         table = s.get_table()
         await self.bot.say('```' + str(table) + '```')
         del s
@@ -188,7 +188,7 @@ class DiscordTrumpQuote:
         author = ctx.message.author
         msg = ctx.message
         if (quote is not None) and (answer is not None) and (answer in ['True', 'False']):
-            _q = TrumpQuote(self.bot.workdir)
+            _q = TrumpQuote(self.bot.root_dir)
             _q.add_quote(quote, answer)
             logging.log(20, '{}: {} added the quote "{}" with answer {}'.format(datetime.now(), author, quote, answer))
             await self.bot.delete_message(msg)

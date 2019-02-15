@@ -15,7 +15,7 @@ import sys
 
 class Bot(commands.Bot):
     def __init__(self, config_name):
-        self.workdir = os.path.dirname(os.path.abspath(__file__))
+        self.root_dir = os.path.dirname(os.path.abspath(__file__))
         self.config = self.load_config(config_name)
 
         super().__init__(
@@ -31,7 +31,7 @@ class Bot(commands.Bot):
         self.loop.create_task(self.help_status())
 
     def load_config(self, config_name):
-        with open(self.workdir + config_name, 'r', encoding='utf-8') as doc:
+        with open(self.root_dir + config_name, 'r', encoding='utf-8') as doc:
             return json.load(doc)
 
     async def run(self):
@@ -54,7 +54,7 @@ class Bot(commands.Bot):
         """
         await self.wait_until_ready()
         await asyncio.sleep(1)  # ensure that on_ready has completed and finished printing
-        exts = [x.split('.')[0] for x in os.listdir(self.workdir + '/ext') if x.endswith(".py")]
+        exts = [x.split('.')[0] for x in os.listdir(self.root_dir + '/ext') if x.endswith(".py")]
 
         for e in self.config['disabled_exts'].split(","):
             if e in exts:
@@ -103,7 +103,7 @@ class Bot(commands.Bot):
     def log_setup(self):
         logger = logging.getLogger()
         logger.setLevel(logging.INFO)
-        file_handler = RotatingFileHandler(self.workdir + '/logs/discord_bot.log', maxBytes=100000, backupCount=5)
+        file_handler = RotatingFileHandler(self.root_dir + '/logs/discord_bot.log', maxBytes=100000, backupCount=5)
         formatter = logging.Formatter('%(asctime)s - %(module)-10s - %(levelname)-5s -> %(message)s',
                                       datefmt='%d-%m|%H:%M')
         file_handler.setFormatter(formatter)

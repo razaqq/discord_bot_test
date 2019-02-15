@@ -22,11 +22,11 @@ class Admin:
             return False
 
     def write_main_config(self):
-        with open(self.bot.workdir + '/config/main.json', 'w', encoding='utf-8') as main_config:
+        with open(self.bot.root_dir + '/config/main.json', 'w', encoding='utf-8') as main_config:
             return json.dump(self.config, main_config, indent=2)
 
     def load_admin_config(self):
-        with open(self.bot.workdir + '/config/admin.json', 'r', encoding='utf-8') as admin_config:
+        with open(self.bot.root_dir + '/config/admin.json', 'r', encoding='utf-8') as admin_config:
             return json.load(admin_config)['admins']
 
     @commands.command(pass_context=True, hidden=True)
@@ -129,7 +129,7 @@ class Admin:
     async def exts(self):
         t = PrettyTable()
 
-        all_exts = [x.split('.')[0] for x in os.listdir(self.bot.workdir + '/ext') if x.endswith(".py")]
+        all_exts = [x.split('.')[0] for x in os.listdir(self.bot.root_dir + '/ext') if x.endswith(".py")]
         disabled_exts = self.config['disabled_exts'].split(',')
         loaded_exts = [str(ext.split('.')[1]) for ext, mod in self.bot.extensions.items()]
 

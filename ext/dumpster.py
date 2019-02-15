@@ -16,7 +16,7 @@ class Dumpster:
             ts.login(self.config['ts3user'], self.config['ts3pass'])
             ts.set_client_nick('The Dumpsterer')
 
-            cids = ts.get_cids(name)
+            cids = ts.get_clids(name)
 
             if cids is not None:
                 for cid in cids:

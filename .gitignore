@@ -117,5 +117,8 @@ venv.bak/
 /config/worldcup.json
 /config/trump_pic.json
 /config/trump_twitter.json
+/config/ts3.json
 
 logs/*
+
+/ext/trump_twitter2.py

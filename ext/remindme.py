@@ -18,7 +18,7 @@ class RemindMe:
                       'week': 60*60*24*7,
                       'month': 60*60*24*7*30}
 
-        self.conn = sqlite3.connect(self.bot.workdir + '/databases/remindme.db')
+        self.conn = sqlite3.connect(self.bot.root_dir + '/databases/remindme.db')
         self.cursor = self.conn.cursor()
         self.saved_reminders = []
         self.read_reminders()
@@ -67,7 +67,7 @@ class RemindMe:
         return [(r['FINISHES'], r['MESSAGE']) for r in self.saved_reminders if r['USER'] == user]
 
     @commands.command(pass_context=True, no_pm=True)
-    async def remindme(self, ctx, quantity: int=0, time_unit: str=None, *, text: str=None):
+    async def remindme(self, ctx, quantity: int = 0, time_unit: str = None, *, text: str = None):
         if time_unit:
             time_unit = time_unit.lower()
             if time_unit.endswith("s"):

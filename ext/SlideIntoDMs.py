@@ -8,11 +8,11 @@ class SlideIntoDMs:
     def __init__(self, bot):
         self.bot = bot
         self.prefix = self.bot.config['prefix']
-        self.config = self.load_config(self.bot.workdir)
+        self.config = self.load_config(self.bot.root_dir)
 
     @staticmethod
-    def load_config(workdir):
-        with open(workdir + '/config/SlideIntoDMs.json', 'r', encoding='utf-8') as doc:
+    def load_config(root_dir):
+        with open(root_dir + '/config/SlideIntoDMs.json', 'r', encoding='utf-8') as doc:
             return json.load(doc)
 
     @commands.command(pass_context=True, hidden=True)
