@@ -75,6 +75,7 @@ class TS3:
         while True:
             ts = server.TS3Server(self.config['ts3ip'], self.config['ts3port'], self.config['ts3sid'])
             ts.login(self.config['ts3user'], self.config['ts3pass'])
+            ts.set_client_nick('serveradmin')
             ts.move_afk(self.config['afk_timeout'], self.config['afk_channel_id'])
             ts.logout()
             await asyncio.sleep(60)
