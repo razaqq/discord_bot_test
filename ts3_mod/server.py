@@ -3,6 +3,7 @@
 import logging
 from ts3_mod.protocol import TS3Proto, InvalidArguments
 from ts3_mod.defines import *
+import time
 
 
 class TS3Server(TS3Proto):
@@ -288,3 +289,14 @@ class TS3Server(TS3Proto):
     def sendtextmessage(self, targetmode, target, msg):
         response = self.send_command('sendtextmessage', keys={'targetmode': targetmode, 'target': target, 'msg': msg})
         return response.is_successful
+
+    def lastseen(self, cldbid):
+        if self.is_online(cldbid):
+            return 'DBID {}: User is currently online!'.format(cldbid)
+        last_conn = float(self.get_clientdbinfo(cldbid)['client_lastconnected'])
+        seconds = time.time() - last_conn
+        days = divmod(seconds, 86400)
+        hours = divmod(days[1], 3600)
+        minutes = divmod(hours[1], 60)
+        return 'DBID {}: Last registered connection is {:0.0f} day(s), {:0.0f} hour(s) and {:0.0f} minute(s) ago' \
+               ''.format(cldbid, days[0], hours[0], minutes[0])
