@@ -58,17 +58,9 @@ class TS3:
         if not cldbids:
             await self.bot.say('No user with that name')
             return
-        if len(cldbids) > 1:
-            await self.bot.say('There is multiple clients with that name...')
-            return
-        cldbid = cldbids[0]
-        if ts.is_online(cldbid):
-            await self.bot.say('User is currently online!')
-            return
-        last_conn = float(ts.get_clientdbinfo(cldbid)['client_lastconnected'])
-        time_since = time.strftime("%d day(s), %H hour(s) and %M minute(s)", time.gmtime(time.time() - last_conn))
+        for cldbid in cldbids:
+            await self.bot.say(ts.lastseen(cldbid))
         ts.logout()
-        await self.bot.say('Last registered connection is {} ago'.format(time_since))
 
     async def afk_check(self):
         await self.bot.wait_until_ready()
