@@ -298,5 +298,5 @@ class TS3Server(TS3Proto):
         days = divmod(seconds, 86400)
         hours = divmod(days[1], 3600)
         minutes = divmod(hours[1], 60)
-        return 'DBID {}: Last registered connection is {:0.0f} day(s), {:0.0f} hour(s) and {:0.0f} minute(s) ago' \
+        return 'DBID {}: Last seen {:0.0f}d, {:0.0f}h and {:0.0f}min ago' \
                ''.format(cldbid, days[0], hours[0], minutes[0])
