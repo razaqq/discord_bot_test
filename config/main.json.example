@@ -1,7 +1,7 @@
 {"prefix": "?",
 "description": "All commands below, grouped by category",
 "token": "abcd",
-"disabled_exts": "status,admin,bomb,dumpster,eightball,flip,presence,rageping,remindme,trump_quotes,trump_twitter,ts3,EvePolice,git,SlideIntoDMs,timer,trump_pic,worldcup",
+"enabled_exts": "status,admin,bomb,dumpster,eightball,flip,presence,rageping,remindme,trump_quotes,trump_twitter,ts3,EvePolice,git,SlideIntoDMs,timer,trump_pic,worldcup",
 
 "ts3ip": "127.0.0.1",
 "ts3port": "10011",

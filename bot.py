@@ -113,6 +113,20 @@ class Bot(commands.Bot):
         stdout_handler.setFormatter(formatter)
         logger.addHandler(stdout_handler)
 
+    async def on_command_error(self, exception, ctx):
+        if isinstance(exception, commands.CommandNotFound):
+            await self.send_message(ctx.message.channel, '{}. Use {}help for a list of commands!'
+                                                         ''.format(exception, self.config['prefix']))
+
+        if self.extra_events.get('on_command_error', None):
+            return
+
+        if hasattr(ctx.command, "on_error"):
+            return
+
+        print('Ignoring exception in command {}'.format(ctx.command), file=sys.stderr)
+        traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
+
 
 if __name__ == '__main__':
     bot = Bot('/config/main.json')
