@@ -112,7 +112,7 @@ venv.bak/
 
 /config/admin.json
 /config/bomb.json
-/config/SlideIntoDMs.json
+/config/fake_news.json
 /config/main.json
 /config/worldcup.json
 /config/trump_pic.json
