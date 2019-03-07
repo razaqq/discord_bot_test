@@ -12,7 +12,7 @@ class SlideIntoDMs:
 
     @staticmethod
     def load_config(root_dir):
-        with open(root_dir + '/config/SlideIntoDMs.json', 'r', encoding='utf-8') as doc:
+        with open(root_dir + '/config/fake_news.json', 'r', encoding='utf-8') as doc:
             return json.load(doc)
 
     @commands.command(pass_context=True, hidden=True)
