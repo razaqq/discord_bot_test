@@ -118,6 +118,7 @@ venv.bak/
 /config/trump_pic.json
 /config/trump_twitter.json
 /config/ts3.json
+/config/eve_police.json
 
 logs/*
 
