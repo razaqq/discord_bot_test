@@ -98,7 +98,7 @@ class Admin:
             t.align = "r"
             t.field_names = ['Extension', 'Status']
             t.align = "r"
-            await self.bot.say('```{}```'.format(t))
+            await self.bot.say('```{}```'.format(t.get_string(sortby="Extension")))
 
     @exts.command(pass_context=True, hidden=True)
     async def enable(self, ctx, module):
