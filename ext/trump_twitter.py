@@ -33,7 +33,7 @@ class TrumpTwitter:
         listener = StdOutListener()
 
         stream = Stream(auth=api.auth, listener=listener)
-        stream.filter(follow=['25073877'], async=True)
+        stream.filter(follow=['25073877'], is_async=True)
         # stream.filter(track=['sandwich'], async=True)
 
     async def check_tweets(self):
@@ -110,7 +110,6 @@ class StdOutListener(StreamListener):
                     if text.endswith(media_url):  # remove media url from tweet text
                         url_lenght = len(media_url) + 1  # remove the whitespace aswell
                         text = text[:-url_lenght]
-
 
         tweet = Tweet(status.id_str, status.user.name, status.created_at, text, status.user.profile_image_url_https, image)
         tweets.append(tweet)
