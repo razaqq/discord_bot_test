@@ -6,7 +6,6 @@ from prettytable import PrettyTable
 import os
 import logging
 import requests
-import base64
 
 
 class Admin:
