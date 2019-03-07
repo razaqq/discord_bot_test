@@ -50,16 +50,16 @@ class Bot(commands.Bot):
 
     async def load_all_extensions(self):
         """
-        Attempts to load all .py files in /ext/ as cog extensions
+        Tries to load all extensions in the main config enabled_exts
         """
         await self.wait_until_ready()
         await asyncio.sleep(1)  # ensure that on_ready has completed and finished printing
-        exts = [x.split('.')[0] for x in os.listdir(self.root_dir + '/ext') if x.endswith(".py")]
+        # exts = [x.split('.')[0] for x in os.listdir(self.root_dir + '/ext') if x.endswith(".py")]
 
-        for e in self.config['disabled_exts'].split(","):
-            if e in exts:
-                exts.remove(e)
-
+        # for e in self.config['disabled_exts'].split(","):
+        #     if e in exts:
+        #         exts.remove(e)
+        exts = self.config['enabled_exts'].split(",")
         logging.log(20, 'Loading extensions:')
         for extension in exts:
             try:
@@ -112,6 +112,20 @@ class Bot(commands.Bot):
         stdout_handler.setLevel(logging.DEBUG)
         stdout_handler.setFormatter(formatter)
         logger.addHandler(stdout_handler)
+
+    async def on_command_error(self, exception, ctx):
+        if isinstance(exception, commands.CommandNotFound):
+            await self.send_message(ctx.message.channel, '{}. Use {}help for a list of commands!'
+                                                         ''.format(exception, self.config['prefix']))
+
+        if self.extra_events.get('on_command_error', None):
+            return
+
+        if hasattr(ctx.command, "on_error"):
+            return
+
+        print('Ignoring exception in command {}'.format(ctx.command), file=sys.stderr)
+        traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
 
 
 if __name__ == '__main__':
