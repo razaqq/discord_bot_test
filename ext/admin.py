@@ -29,35 +29,35 @@ class Admin:
         with open(self.bot.root_dir + '/config/admin.json', 'r', encoding='utf-8') as admin_config:
             return json.load(admin_config)['admins']
 
-    @commands.command(pass_context=True, hidden=True)
-    async def load(self, ctx, module):
-        """Loads a module."""
-        author = ctx.message.author
-        if self.is_admin(author):
-            try:
-                self.bot.load_extension('ext.{}'.format(module))
-            except Exception as e:
-                await self.bot.say('```py\n{}\n```'.format(traceback.format_exc()))
-            else:
-                await self.bot.say('\N{OK HAND SIGN}')
-                logging.log(20, 'Ext {} was successfully loaded by {}'.format(module, author.name))
-        else:
-            await self.bot.say("You don't have permissions")
+    # @commands.command(pass_context=True, hidden=True)
+    # async def load(self, ctx, module):
+    #    """Loads a module."""
+    #    author = ctx.message.author
+    #    if self.is_admin(author):
+    #        try:
+    #            self.bot.load_extension('ext.{}'.format(module))
+    #        except Exception as e:
+    #            await self.bot.say('```py\n{}\n```'.format(traceback.format_exc()))
+    #        else:
+    #            await self.bot.say('\N{OK HAND SIGN}')
+    #            logging.log(20, 'Ext {} was successfully loaded by {}'.format(module, author.name))
+    #    else:
+    #        await self.bot.say("You don't have permissions")
 
-    @commands.command(pass_context=True, hidden=True)
-    async def unload(self, ctx, module):
-        """Unloads a module."""
-        author = ctx.message.author
-        if self.is_admin(author):
-            try:
-                self.bot.unload_extension('ext.{}'.format(module))
-            except Exception as e:
-                await self.bot.say('```py\n{}\n```'.format(traceback.format_exc()))
-            else:
-                await self.bot.say('\N{OK HAND SIGN}')
-                logging.log(20, 'Ext {} was successfully unloaded by {}'.format(module, author.name))
-        else:
-            await self.bot.say("You don't have permissions")
+    # @commands.command(pass_context=True, hidden=True)
+    # async def unload(self, ctx, module):
+    #    """Unloads a module."""
+    #    author = ctx.message.author
+    #    if self.is_admin(author):
+    #        try:
+    #            self.bot.unload_extension('ext.{}'.format(module))
+    #        except Exception as e:
+    #            await self.bot.say('```py\n{}\n```'.format(traceback.format_exc()))
+    #        else:
+    #            await self.bot.say('\N{OK HAND SIGN}')
+    #            logging.log(20, 'Ext {} was successfully unloaded by {}'.format(module, author.name))
+    #    else:
+    #        await self.bot.say("You don't have permissions")
 
     @commands.command(pass_context=True, name='reload', hidden=True)
     async def _reload(self, ctx, module):
@@ -75,78 +75,79 @@ class Admin:
         else:
             await self.bot.say("You don't have permissions")
 
-    @commands.command(pass_context=True, hidden=True)
+    @commands.group(hidden=True, pass_context=True)
+    async def exts(self, ctx):
+        if ctx.invoked_subcommand is None:
+            t = PrettyTable()
+
+            all_exts = [x.split('.')[0] for x in os.listdir(self.bot.root_dir + '/ext') if x.endswith(".py")]
+            enabled_exts = self.config['enabled_exts'].split(',')
+            loaded_exts = [str(ext.split('.')[1]) for ext, mod in self.bot.extensions.items()]
+
+            for ext in all_exts:
+                loaded = str(ext in loaded_exts)
+                if ext in enabled_exts:
+                    if ext in loaded_exts:
+                        t.add_row([ext, 'enabled'])
+                    else:
+                        t.add_row([ext, 'failed to load'])
+                else:
+                    t.add_row([ext, 'disabled'])
+
+            t.left_padding_width = 0
+            t.right_padding_width = 0
+            t.align = "r"
+            t.field_names = ['Extension', 'Status']
+            t.align = "r"
+            await self.bot.say('```{}```'.format(t))
+
+    @exts.command(pass_context=True, hidden=True)
     async def enable(self, ctx, module):
-        """Enables a module."""
+        """Tries to enable an module."""
         author = ctx.message.author
         if self.is_admin(author):
             try:
-                if str(module) in self.config['disabled_exts'].split(','):
-                    disabled_exts = self.config['disabled_exts'].split(',')
-                    disabled_exts.remove(str(module))
-                    disabled_string = ",".join(x for x in disabled_exts)
-
-                    self.config['disabled_exts'] = disabled_string
+                enabled_exts = self.config['enabled_exts'].split(',')
+                if str(module) in enabled_exts:
+                    return await self.bot.say("This module is already enabled")
+                else:
+                    enabled_exts.append(str(module))
+                    enabled_str = ",".join(x for x in enabled_exts)
+                    self.config['enabled_exts'] = enabled_str
                     self.write_main_config()
 
                     self.bot.load_extension('ext.{}'.format(module))
-                else:
-                    return await self.bot.say("This module is not disabled currently")
             except Exception as e:
                 await self.bot.say('```py\n{}\n```'.format(traceback.format_exc()))
             else:
                 await self.bot.say('\N{OK HAND SIGN}')
-                logging.log(20, 'Ext {} was successfully enabled by {}'.format(module, author.name))
+                logging.log(20, 'Ext "{}" was successfully enabled by {}'.format(module, author.name))
         else:
             await self.bot.say("You don't have permissions")
 
-    @commands.command(pass_context=True, hidden=True)
+    @exts.command(pass_context=True, hidden=True)
     async def disable(self, ctx, module):
-        """Disables a module."""
+        """Tries to disable an module."""
         author = ctx.message.author
         if self.is_admin(author):
             try:
-                if not str(module) in self.config['disabled_exts'].split(','):
-                    disabled_exts = self.config['disabled_exts'].split(',')
-                    disabled_exts.append(str(module))
-                    disabled_string = ",".join(x for x in disabled_exts)
-                    
-                    self.config['disabled_exts'] = disabled_string
+                enabled_exts = self.config['enabled_exts'].split(',')
+                if not str(module) in enabled_exts:
+                    return await self.bot.say("This module is already disabled")
+                else:
+                    enabled_exts.remove(str(module))
+                    enabled_str = ",".join(x for x in enabled_exts)
+                    self.config['enabled_exts'] = enabled_str
                     self.write_main_config()
 
                     self.bot.unload_extension('ext.{}'.format(module))
-                else:
-                    return await self.bot.say("This module is already disabled")
             except Exception as e:
                 await self.bot.say('```py\n{}\n```'.format(traceback.format_exc()))
             else:
                 await self.bot.say('\N{OK HAND SIGN}')
-                logging.log(20, 'Ext {} was successfully disabled by {}'.format(module, author.name))
+                logging.log(20, 'Ext "{}" was successfully disabled by {}'.format(module, author.name))
         else:
             await self.bot.say("You don't have permissions")
-
-    @commands.command(hidden=True)
-    async def exts(self):
-        t = PrettyTable()
-
-        all_exts = [x.split('.')[0] for x in os.listdir(self.bot.root_dir + '/ext') if x.endswith(".py")]
-        disabled_exts = self.config['disabled_exts'].split(',')
-        loaded_exts = [str(ext.split('.')[1]) for ext, mod in self.bot.extensions.items()]
-
-        for ext in all_exts:
-            loaded = str(ext in loaded_exts)
-            if ext in disabled_exts:
-                t.add_row([ext, 'disabled', loaded])
-            else:
-                t.add_row([ext, 'enabled', loaded])
-        
-        t.left_padding_width = 0
-        t.right_padding_width = 0
-        # t.title =('Currently loaded extensions')
-        t.align = "r"
-        t.field_names = ['Extension', 'Load on startup', 'Loaded']
-        t.align = "r"
-        await self.bot.say('```{}```'.format(t))
 
     @commands.command(pass_context=True, hidden=True)
     async def shutdown(self, ctx):
