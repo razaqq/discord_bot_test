@@ -9,9 +9,6 @@ from tweepy import Stream
 from tweepy import API
 from tweepy.streaming import StreamListener
 
-import signal
-import functools
-
 tweets = []
 
 
@@ -33,7 +30,7 @@ class TrumpTwitter:
         listener = StdOutListener()
 
         stream = Stream(auth=api.auth, listener=listener)
-        stream.filter(follow=['25073877'], is_async=True)
+        stream.filter(follow=['25073877'], is_async=False)
         # stream.filter(track=['sandwich'], is_async=True)
 
     async def check_tweets(self):
