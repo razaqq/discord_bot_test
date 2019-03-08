@@ -34,7 +34,7 @@ class TrumpTwitter:
 
         stream = Stream(auth=api.auth, listener=listener)
         stream.filter(follow=['25073877'], is_async=True)
-        # stream.filter(track=['sandwich'], async=True)
+        # stream.filter(track=['sandwich'], is_async=True)
 
     async def check_tweets(self):
         while self.bot.get_cog('TrumpTwitter'):  # check this again
@@ -84,6 +84,9 @@ class Tweet:
 
 
 class StdOutListener(StreamListener):
+    def on_connect(self):
+        logging.info("Successfully connected to the twitter api.")
+
     def on_status(self, status):
         if status.user.id != 25073877:  # from trump?
             return
@@ -117,8 +120,13 @@ class StdOutListener(StreamListener):
         tweet = str(tweet).encode('utf-8')
         logging.info(tweet)
 
-    def on_error(self, status):
-        print('HttpStream (twitter): error {}'.format(status))
+    def on_error(self, error_code):
+        if error_code == 420:
+            logging.error("420 Enhance Your Calm - We are being rate limited."
+                          "Possible reasons: Too many login attempts or running too many copies of the same "
+                          "application authenticating with the same credentials")
+            return False  # returning False in on_error disconnects the stream
+        logging.error(f"Error: {error_code}")
         return True
 
 
