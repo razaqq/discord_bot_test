@@ -30,7 +30,7 @@ class TrumpTwitter:
         listener = StdOutListener()
 
         stream = Stream(auth=api.auth, listener=listener)
-        stream.filter(follow=['25073877'], is_async=False)
+        stream.filter(follow=['25073877'], is_async=True)
         # stream.filter(track=['sandwich'], is_async=True)
 
     async def check_tweets(self):
