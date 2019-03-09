@@ -122,5 +122,4 @@ venv.bak/
 
 logs/*
 
-/ext/trump_twitter2.py
-/ext/trump_twitter3.py
+/ext/trump_twitter_old.py
