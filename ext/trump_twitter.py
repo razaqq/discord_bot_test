@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import logging
 import discord
 import json
-
+import asyncio
 
 @dataclass
 class Tweet:
@@ -39,6 +39,9 @@ class TrumpTwitter:
         return stream.statuses.filter(follow='25073877')
 
     async def read_tweets(self):
+        await self.bot.wait_until_ready()  # wait until the bot has loaded all exts
+        logging.info('Starting Twitter Stream...')
+
         for tweet in self.tweet_iter:
             if tweet['user']['id'] != 25073877:  # skip tweets that aren't from god himself
                 continue
