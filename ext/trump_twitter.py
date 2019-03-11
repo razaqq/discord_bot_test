@@ -54,6 +54,7 @@ class TrumpTwitter:
                     self.last_id = statuses[0]['id_str']
                 else:
                     logging.error('Retrieved 0 statuses!')
+                    logging.error(statuses)
             except Exception as e:
                 logging.error(e)
             await asyncio.sleep(60)
