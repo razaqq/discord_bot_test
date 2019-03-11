@@ -10,7 +10,6 @@ from discord.ext import commands
 class Status:
     def __init__(self, bot):
         self.bot = bot
-        print('{}/databases/status.db'.format(self.bot.root_dir))
         self.conn = sqlite3.connect('{}/databases/status.db'.format(self.bot.root_dir))
         self.cursor = self.conn.cursor()
 
