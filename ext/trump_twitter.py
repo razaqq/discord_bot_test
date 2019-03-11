@@ -53,13 +53,13 @@ class TrumpTwitter:
 
     async def process_tweets(self, tweets):
         for tweet in tweets:
-            logging.info(tweet)
             if tweet is None:
                 continue
             if tweet['user']['id'] != 25073877:  # skip tweets that aren't from god himself
                 continue
             if 'retweeted_status' in tweet or tweet['full_text'].startswith('RT @'):  # filter retweets
                 continue
+            logging.info(tweet)
             image = None
             text = tweet['full_text']
             if 'media' in tweet['entities']:
