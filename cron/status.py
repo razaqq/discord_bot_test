@@ -1,12 +1,15 @@
+#!/usr/local/bin/python3.7
+
 import psutil
 import sqlite3
-from datetime import date, datetime
+from datetime import datetime, timedelta
 import time
+import os
 
 
 class SystemInfo:
-    def __init__(self):
-        self.conn = sqlite3.connect('SystemInfo.db')
+    def __init__(self, root_dir):
+        self.conn = sqlite3.connect('{}/databases/status.db'.format(root_dir))
         self.cursor = self.conn.cursor()
         self.create_tables()
 
@@ -31,6 +34,14 @@ class SystemInfo:
         # self.cursor.execute('INSERT INTO cpu_temp VALUES (?, ?)', [self.get_cpu_temp(), datetime.now()])
         self.conn.commit()
 
+    def del_old_data(self):
+        print('2019-03-11 11:52:06.985393' <= '2019-03-10 11:18:41.159758')
+        self.cursor.execute("DELETE FROM net_usage WHERE time <= ?", [datetime.now() - timedelta(hours=24)])
+        self.cursor.execute("DELETE FROM mem_usage WHERE time <= ?", [datetime.now() - timedelta(hours=24)])
+        self.cursor.execute("DELETE FROM cpu_load WHERE time <= ?", [datetime.now() - timedelta(hours=24)])
+        self.cursor.execute("DELETE FROM cpu_temp WHERE time <= ?", [datetime.now() - timedelta(hours=24)])
+        self.conn.commit()
+
     @staticmethod
     def get_net_usage(adapter_name):
         net_usage = psutil.net_io_counters(pernic=True)[adapter_name]
@@ -45,8 +56,8 @@ class SystemInfo:
         sent = bytes_sent - net_usage.bytes_sent
         recv = bytes_recv - net_usage.bytes_recv
 
-        ul = sent / (t0 - t1) / 1000.0
-        dl = recv / (t0 - t1) / 1000.0
+        ul = round(sent / (t0 - t1) / 1000.0, 2)
+        dl = round(recv / (t0 - t1) / 1000.0, 2)
 
         return [ul, dl]
 
@@ -63,9 +74,10 @@ class SystemInfo:
 
     @staticmethod
     def get_cpu_temp():
-        return psutil.sensors_temperatures(False)['cpu-thermal'][0].current
+        return round(psutil.sensors_temperatures(False)['cpu-thermal'][0].current, 2)
 
 
 if __name__ == '__main__':
-    s = SystemInfo()
+    s = SystemInfo(os.path.abspath('.'))
     s.insert_data()
+    s.del_old_data()
