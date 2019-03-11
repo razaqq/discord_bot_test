@@ -25,7 +25,7 @@ class SystemInfo:
         self.conn.commit()
 
     def insert_data(self):
-        net_usage = self.get_net_usage('Ethernet')
+        net_usage = self.get_net_usage('eth0')
         self.cursor.execute('INSERT INTO net_usage VALUES (?, ?, ?)', [net_usage[0], net_usage[1], datetime.now()])
         mem_usage = self.get_mem_usage()
         self.cursor.execute('INSERT INTO mem_usage VALUES (?, ?, ?, ?)', [mem_usage.total, mem_usage.available,
@@ -77,6 +77,6 @@ class SystemInfo:
 
 
 if __name__ == '__main__':
-    s = SystemInfo(os.path.abspath('.'))
+    s = SystemInfo(os.path.abspath('..'))
     s.insert_data()
     s.del_old_data()
