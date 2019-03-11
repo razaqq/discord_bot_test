@@ -48,7 +48,10 @@ class TrumpTwitter:
                 tweets = self.twitter.statuses.user_timeline(user_id='25073877', since_id=self.last_id,
                                                              tweet_mode='extended')
                 await self.process_tweets(tweets)
-            self.last_id = self.twitter.statuses.user_timeline(user_id='25073877')[0]['id_str']
+            try:
+                self.last_id = self.twitter.statuses.user_timeline(user_id='25073877')[0]['id_str']
+            except Exception as e:
+                logging.error(e)
             await asyncio.sleep(60)
 
     async def process_tweets(self, tweets):
