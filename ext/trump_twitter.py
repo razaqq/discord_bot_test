@@ -51,6 +51,7 @@ class TrumpTwitter:
             try:
                 self.last_id = self.twitter.statuses.user_timeline(user_id='25073877')[0]['id_str']
             except Exception as e:
+                logging.error(self.twitter.statuses.user_timeline(user_id='25073877'))
                 logging.error(e)
             await asyncio.sleep(60)
 
