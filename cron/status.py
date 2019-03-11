@@ -77,6 +77,6 @@ class SystemInfo:
 
 
 if __name__ == '__main__':
-    s = SystemInfo(os.path.abspath('..'))
+    s = SystemInfo(os.path.dirname(os.path.abspath(__file__ + '/..')))
     s.insert_data()
     s.del_old_data()
