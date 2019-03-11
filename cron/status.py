@@ -31,11 +31,10 @@ class SystemInfo:
         self.cursor.execute('INSERT INTO mem_usage VALUES (?, ?, ?, ?)', [mem_usage.total, mem_usage.available,
                                                                           mem_usage.percent, datetime.now()])
         self.cursor.execute('INSERT INTO cpu_load VALUES (?, ?)', [self.get_cpu_load(), datetime.now()])
-        # self.cursor.execute('INSERT INTO cpu_temp VALUES (?, ?)', [self.get_cpu_temp(), datetime.now()])
+        self.cursor.execute('INSERT INTO cpu_temp VALUES (?, ?)', [self.get_cpu_temp(), datetime.now()])
         self.conn.commit()
 
     def del_old_data(self):
-        print('2019-03-11 11:52:06.985393' <= '2019-03-10 11:18:41.159758')
         self.cursor.execute("DELETE FROM net_usage WHERE time <= ?", [datetime.now() - timedelta(hours=24)])
         self.cursor.execute("DELETE FROM mem_usage WHERE time <= ?", [datetime.now() - timedelta(hours=24)])
         self.cursor.execute("DELETE FROM cpu_load WHERE time <= ?", [datetime.now() - timedelta(hours=24)])
