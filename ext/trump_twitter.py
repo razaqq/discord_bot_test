@@ -46,12 +46,15 @@ class TrumpTwitter:
         while True:
             if self.last_id:
                 tweets = self.twitter.statuses.user_timeline(user_id='25073877', since_id=self.last_id,
-                                                             tweet_mode='extended')
+                                                             tweet_mode='extended', include_rts=False)
                 await self.process_tweets(tweets)
             try:
-                self.last_id = self.twitter.statuses.user_timeline(user_id='25073877')[0]['id_str']
+                statuses = self.twitter.statuses.user_timeline(user_id='25073877', count=1, include_rts=True)
+                if len(statuses) > 0:
+                    self.last_id = statuses[0]['id_str']
+                else:
+                    logging.error('Retrieved 0 statuses!')
             except Exception as e:
-                logging.error(self.twitter.statuses.user_timeline(user_id='25073877'))
                 logging.error(e)
             await asyncio.sleep(60)
 
