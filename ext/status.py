@@ -25,10 +25,11 @@ class Status:
             os.remove('mem_usage_plot.png')
 
     def generate_cpu_load_plot(self):
-        self.cursor.execute('SELECT load FROM cpu_load ORDER BY time DESC')
-        y = np.array([float(y[0]) for y in self.cursor.fetchall()])
+        self.cursor.execute('SELECT load, time FROM cpu_load ORDER BY time DESC')
+        res = self.cursor.fetchall()
 
-        x = [(datetime.now() - timedelta(hours=h)) for h in range(0, len(y))]
+        y = np.array([float(y[0]) for y in res])
+        x = [datetime.strptime(x[1], '%Y-%m-%d %H:%M:%S.%f') for x in res]
 
         fig, ax = plt.subplots()
 
@@ -45,10 +46,11 @@ class Status:
         plt.savefig('cpu_load_plot.png')
 
     def generate_cpu_temp_plot(self):
-        self.cursor.execute('SELECT temp FROM cpu_temp ORDER BY time DESC')
-        y = np.array([float(y[0]) for y in self.cursor.fetchall()])
+        self.cursor.execute('SELECT temp, time FROM cpu_temp ORDER BY time DESC')
+        res = self.cursor.fetchall()
 
-        x = [(datetime.now() - timedelta(hours=h)) for h in range(0, len(y))]
+        y = np.array([float(y[0]) for y in res])
+        x = [datetime.strptime(x[1], '%Y-%m-%d %H:%M:%S.%f') for x in res]
 
         fig, ax = plt.subplots()
 
@@ -65,12 +67,12 @@ class Status:
         plt.savefig('cpu_temp_plot.png')
 
     def generate_net_usage_plot(self):
-        self.cursor.execute('SELECT up, down FROM net_usage ORDER BY time DESC')
+        self.cursor.execute('SELECT up, down, time FROM net_usage ORDER BY time DESC')
         res = self.cursor.fetchall()
         up = np.array([float(y[0]) for y in res])
         down = np.array([float(y[1]) for y in res])
 
-        x = [(datetime.now() - timedelta(hours=h)) for h in range(0, len(res))]
+        x = [datetime.strptime(x[2], '%Y-%m-%d %H:%M:%S.%f') for x in res]
 
         f, (ax1, ax2) = plt.subplots(2, sharex=True)
 
@@ -96,12 +98,12 @@ class Status:
         plt.savefig('net_usage_plot.png')
 
     def generate_mem_usage_plot(self):
-        self.cursor.execute('SELECT percent, total, available FROM mem_usage ORDER BY time DESC')
+        self.cursor.execute('SELECT percent, total, available, time FROM mem_usage ORDER BY time DESC')
         res = self.cursor.fetchall()
         y = np.array([float(y[0]) for y in res])
         y_value = [str(round((float(y[1]) - float(y[2])) / 1000000000, 2)) + ' GB' for y in res]
 
-        x = [(datetime.now() - timedelta(hours=h)) for h in range(0, len(y))]
+        x = [datetime.strptime(x[3], '%Y-%m-%d %H:%M:%S.%f') for x in res]
 
         fig, ax = plt.subplots()
 
