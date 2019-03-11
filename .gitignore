@@ -123,3 +123,4 @@ venv.bak/
 logs/*
 
 /ext/trump_twitter_old.py
+/ext/status.py
