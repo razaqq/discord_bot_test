@@ -77,4 +77,3 @@ def setup(bot):
     t = TS3(bot)
     bot.loop.create_task(t.afk_check())
     bot.add_cog(t)
-
