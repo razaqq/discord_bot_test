@@ -24,7 +24,7 @@ class TS3:
             ts.set_client_nick('serveradmin')
             tree = ts.get_channeltree()
             ts.logout()
-            await self.bot.say(tree)
+            await self.bot.say('```{}```'.format(tree))
 
     @ts.command(pass_context=True)
     async def poke(self, ctx, user=None, message=None):
