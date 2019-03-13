@@ -57,7 +57,7 @@ class TrumpTwitter:
                 continue
             if hasattr(tweet, 'retweeted_status') or tweet.full_text.startswith('RT @'):  # filter retweets
                 continue
-            logging.info(tweet)
+            # logging.info(tweet)
             image = None
             text = tweet.full_text
             if 'media' in tweet.entities:
