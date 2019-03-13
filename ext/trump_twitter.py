@@ -30,7 +30,7 @@ class TrumpTwitter:
 
         while True:
             tries = []  # query multiple times
-            for i in range(3):
+            for i in range(5):
                 res = self.api.user_timeline(user_id='25073877', since_id=self.last_id, tweet_mode='extended',
                                              include_rts=False)
                 tries.append(res)
