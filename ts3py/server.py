@@ -246,7 +246,7 @@ class TS3Server(TS3Proto):
         channellist = self.channellist()
         tree = ''
         if len(clientlist) == 1:
-            return "nobody is here <:feelsbad:345232499103891456>"
+            return  # return none if no client online
 
         for client in clientlist:
             if client['client_type'] == '0':  # exclude query clients
