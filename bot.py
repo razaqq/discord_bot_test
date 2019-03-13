@@ -11,6 +11,7 @@ import discord
 from discord.ext import commands
 from contextlib import suppress
 import sys
+import time
 
 
 class Bot(commands.Bot):
@@ -138,6 +139,8 @@ if __name__ == '__main__':
         logging.error(traceback.format_exc())
     except KeyboardInterrupt:
         loop.run_until_complete(bot.logout())
+    except ConnectionResetError:
+        time.sleep(2)
     except Exception as e:
         logging.error(e)
     finally:
