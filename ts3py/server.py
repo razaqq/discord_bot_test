@@ -2,7 +2,6 @@
 
 import logging
 from ts3py.protocol import TS3Proto, InvalidArguments
-from ts3py.defines import *
 import time
 
 
@@ -115,7 +114,7 @@ class TS3Server(TS3Proto):
             self.logger.debug("channellist - error retrieving channel list")
             return {}
 
-    def clientkick(self, clid=None, cldbid=None, type=REASON_KICK_SERVER, message=None):
+    def clientkick(self, clid=None, cldbid=None, reason_identifier=5, message=None):
         """
         Kicks a user identified by either clid or cldbid
         """
@@ -146,7 +145,7 @@ class TS3Server(TS3Proto):
 
         if client:
             self.logger.debug("clientkick - Kicking clid %s" % client)
-            response = self.send_command('clientkick', keys={'clid': client, 'reasonid': type, 'reasonmsg': message})
+            response = self.send_command('clientkick', keys={'clid': client, 'reasonid': reason_identifier, 'reasonmsg': message})
             return response.is_successful
 
         return False
@@ -300,7 +299,3 @@ class TS3Server(TS3Proto):
                         tree += '\n'
         tree = '```' + tree + '```'
         return tree
-
-
-if __name__ == '__main__':
-    t = TS3Server()
