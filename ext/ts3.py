@@ -22,7 +22,7 @@ class TS3:
             ts = TS3Server(self.config['ts3ip'], self.config['ts3port'], self.config['ts3sid'])
             ts.login(self.config['ts3user'], self.config['ts3pass'])
             ts.set_client_nick('serveradmin')
-            tree = ts.built_channeltree()
+            tree = ts.get_channeltree()
             ts.logout()
             await self.bot.say(tree)
 
