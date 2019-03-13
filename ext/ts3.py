@@ -1,7 +1,6 @@
 from discord.ext import commands
 from ts3py.server import TS3Server
 import json
-import time
 import asyncio
 
 
