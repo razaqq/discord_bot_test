@@ -34,6 +34,7 @@ class TrumpTwitter:
                 res = self.api.user_timeline(user_id='25073877', since_id=self.last_id, tweet_mode='extended',
                                              include_rts=False)
                 tries.append(res)
+                await asyncio.sleep(0.5)
 
             max_count, x = (0, 0)  # find response with most results, fuck you twitter api
             for i in range(0, len(tries) - 1):
