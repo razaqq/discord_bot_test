@@ -1,5 +1,5 @@
 from discord.ext import commands
-from ts3py import server
+from ts3py.server import TS3Server
 import json
 import time
 import asyncio
@@ -20,7 +20,7 @@ class TS3:
     async def ts(self, ctx):
         """Shows a channeltree"""
         if ctx.invoked_subcommand is None:
-            ts = server.TS3Server(self.config['ts3ip'], self.config['ts3port'], self.config['ts3sid'])
+            ts = TS3Server(self.config['ts3ip'], self.config['ts3port'], self.config['ts3sid'])
             ts.login(self.config['ts3user'], self.config['ts3pass'])
             ts.set_client_nick('serveradmin')
             tree = ts.built_channeltree()
@@ -34,7 +34,7 @@ class TS3:
         if not message:
             message = ''
         if user:
-            ts = server.TS3Server(self.config['ts3ip'], self.config['ts3port'], self.config['ts3sid'])
+            ts = TS3Server(self.config['ts3ip'], self.config['ts3port'], self.config['ts3sid'])
             ts.login(self.config['ts3user'], self.config['ts3pass'])
             ts.set_client_nick(author + ' via Discord')
             cids = ts.get_clids(user)
@@ -51,7 +51,7 @@ class TS3:
     @ts.command()
     async def lastseen(self, user):
         """Shows the time since a user has been seen last"""
-        ts = server.TS3Server(self.config['ts3ip'], self.config['ts3port'], self.config['ts3sid'])
+        ts = TS3Server(self.config['ts3ip'], self.config['ts3port'], self.config['ts3sid'])
         ts.login(self.config['ts3user'], self.config['ts3pass'])
         ts.set_client_nick('serveradmin')
         cldbids = ts.get_dbclids(user)
@@ -65,7 +65,7 @@ class TS3:
     async def afk_check(self):
         await self.bot.wait_until_ready()
         while True:
-            ts = server.TS3Server(self.config['ts3ip'], self.config['ts3port'], self.config['ts3sid'])
+            ts = TS3Server(self.config['ts3ip'], self.config['ts3port'], self.config['ts3sid'])
             ts.login(self.config['ts3user'], self.config['ts3pass'])
             ts.set_client_nick('serveradmin')
             ts.move_afk(self.config['afk_timeout'], self.config['afk_channel_id'])
