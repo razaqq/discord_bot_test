@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import logging
-from ts3_mod.protocol import TS3Proto, InvalidArguments
-from ts3_mod.defines import *
+from ts3py.protocol import TS3Proto, InvalidArguments
+from ts3py.defines import *
 import time
 
 
@@ -159,71 +159,6 @@ class TS3Server(TS3Proto):
         response = self.send_command('clientpoke', keys={'clid': clid, 'msg': message})
         return response.is_successful
 
-    def built_channeltree(self):
-        _clientlist = self.send_command('clientlist -away -voice').data
-        _channellist = self.channellist()
-        tree = ''
-        if len(_clientlist) == 1:
-            return "nobody is here <:feelsbad:345232499103891456>"
-        for channel in _channellist.values():
-            cid = channel['cid']
-            _pid = channel['pid']
-            _channel_name = channel['channel_name']
-            if _pid == '0':  # Root?
-                tree += ('|- ' + _channel_name + '\n')
-                for client in _clientlist:
-                    _cid = client['cid']
-                    client_nickname = client['client_nickname']
-                    client_type = client['client_type']
-                    client_away = int(client['client_away'])
-                    client_input_muted = int(client['client_input_muted'])
-                    client_output_muted = int(client['client_output_muted'])
-                    if cid == _cid and client_type == '0':
-                        tree += ('   -> ' + client_nickname)
-                        if client_away or client_input_muted or client_output_muted:
-                            tree += '  ['
-                        if client_away:  # or client_input_muted or client_output_muted:
-                            tree += '💤'
-                        if client_input_muted and client_away:
-                            tree += ', 🎤-muted'
-                        elif client_input_muted:
-                            tree += '🎤-muted'
-                        if client_output_muted and (client_input_muted or client_away):
-                            tree += ', 🔈-muted'
-                        elif client_output_muted:
-                            tree += '🔈-muted'
-                        if client_away or client_input_muted or client_output_muted:
-                            tree += ']'
-                        tree += '\n'
-            else:
-                tree += ('   |- ' + _channel_name + '\n')
-                for client in _clientlist:
-                    _cid = client['cid']
-                    client_nickname = client['client_nickname']
-                    client_type = client['client_type']
-                    client_away = int(client['client_away'])
-                    client_input_muted = int(client['client_input_muted'])
-                    client_output_muted = int(client['client_output_muted'])
-                    if cid == _cid and client_type == '0':
-                        tree += ('      -> ' + client_nickname)
-                        if client_away or client_input_muted or client_output_muted:
-                            tree += '  ['
-                        if client_away:  # or client_input_muted or client_output_muted:
-                            tree += '💤'
-                        if client_input_muted and client_away:
-                            tree += ', 🎤-muted'
-                        elif client_input_muted:
-                            tree += '🎤-muted'
-                        if client_output_muted and (client_input_muted or client_away):
-                            tree += ', 🔈-muted'
-                        elif client_output_muted:
-                            tree += '🔈-muted'
-                        if client_away or client_input_muted or client_output_muted:
-                            tree += ']'
-                        tree += '\n'
-        tree = '```' + tree + '```'
-        return tree
-
     def get_clids(self, name):
         """Gets the clid to a name in the list of online users"""
         _clientlist = self.clientlist()
@@ -300,3 +235,72 @@ class TS3Server(TS3Proto):
         minutes = divmod(hours[1], 60)
         return 'DBID {}: Last seen {:0.0f}d, {:0.0f}h and {:0.0f}min ago' \
                ''.format(cldbid, days[0], hours[0], minutes[0])
+
+    def built_channeltree(self):
+        _clientlist = self.send_command('clientlist -away -voice').data
+        _channellist = self.channellist()
+        tree = ''
+        if len(_clientlist) == 1:
+            return "nobody is here <:feelsbad:345232499103891456>"
+        for channel in _channellist.values():
+            cid = channel['cid']
+            _pid = channel['pid']
+            _channel_name = channel['channel_name']
+            if _pid == '0':  # Root?
+                tree += ('|- ' + _channel_name + '\n')
+                for client in _clientlist:
+                    _cid = client['cid']
+                    client_nickname = client['client_nickname']
+                    client_type = client['client_type']
+                    client_away = int(client['client_away'])
+                    client_input_muted = int(client['client_input_muted'])
+                    client_output_muted = int(client['client_output_muted'])
+                    if cid == _cid and client_type == '0':
+                        tree += ('   -> ' + client_nickname)
+                        if client_away or client_input_muted or client_output_muted:
+                            tree += '  ['
+                        if client_away:  # or client_input_muted or client_output_muted:
+                            tree += '💤'
+                        if client_input_muted and client_away:
+                            tree += ', 🎤-muted'
+                        elif client_input_muted:
+                            tree += '🎤-muted'
+                        if client_output_muted and (client_input_muted or client_away):
+                            tree += ', 🔈-muted'
+                        elif client_output_muted:
+                            tree += '🔈-muted'
+                        if client_away or client_input_muted or client_output_muted:
+                            tree += ']'
+                        tree += '\n'
+            else:
+                tree += ('   |- ' + _channel_name + '\n')
+                for client in _clientlist:
+                    _cid = client['cid']
+                    client_nickname = client['client_nickname']
+                    client_type = client['client_type']
+                    client_away = int(client['client_away'])
+                    client_input_muted = int(client['client_input_muted'])
+                    client_output_muted = int(client['client_output_muted'])
+                    if cid == _cid and client_type == '0':
+                        tree += ('      -> ' + client_nickname)
+                        if client_away or client_input_muted or client_output_muted:
+                            tree += '  ['
+                        if client_away:  # or client_input_muted or client_output_muted:
+                            tree += '💤'
+                        if client_input_muted and client_away:
+                            tree += ', 🎤-muted'
+                        elif client_input_muted:
+                            tree += '🎤-muted'
+                        if client_output_muted and (client_input_muted or client_away):
+                            tree += ', 🔈-muted'
+                        elif client_output_muted:
+                            tree += '🔈-muted'
+                        if client_away or client_input_muted or client_output_muted:
+                            tree += ']'
+                        tree += '\n'
+        tree = '```' + tree + '```'
+        return tree
+
+
+if __name__ == '__main__':
+    t = TS3Server()

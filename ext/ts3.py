@@ -1,5 +1,5 @@
 from discord.ext import commands
-from ts3_mod import server
+from ts3py import server
 import json
 import time
 import asyncio

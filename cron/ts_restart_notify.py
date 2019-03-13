@@ -1,6 +1,6 @@
 #!/usr/local/bin/python3.7
 
-from ts3_mod import server
+from ts3py import server
 import argparse
 import os
 import json
