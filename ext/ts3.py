@@ -23,6 +23,8 @@ class TS3:
             ts.login(self.config['ts3user'], self.config['ts3pass'])
             ts.set_client_nick('serveradmin')
             tree = ts.get_channeltree()
+            if not tree:
+                tree = 'nobody is here <:feelsbad:345232499103891456>'
             ts.logout()
             await self.bot.say('```{}```'.format(tree))
 

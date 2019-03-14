@@ -4,6 +4,7 @@ import discord
 import json
 import asyncio
 import os
+from html import unescape
 
 
 class TrumpTwitter:
@@ -59,7 +60,7 @@ class TrumpTwitter:
                 continue
             # logging.info(tweet)
             image = None
-            text = tweet.full_text
+            text = unescape(tweet.full_text)
             if 'media' in tweet.entities:
                 if tweet.entities['media'][0]['type'] == 'photo':  # only jpeg, no gif/video
                     image = tweet.entities['media'][0]['media_url_https']
