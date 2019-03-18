@@ -31,7 +31,7 @@ class FakeNews:
     async def send_fake_news(self, text, channel):
         now = datetime.datetime.now()
         now = now.strftime("%a %b %d %H:%M:%S +0000 %Y")
-        embed = discord.Embed(description="{}\n\n[Link]({})".format(text, "http://perryswift.tk"), color=0x00aced)
+        embed = discord.Embed(description="{}\n\n[Link]({})".format(text, "http://www.perry-swift.de"), color=0x00aced)
         embed.set_author(name="Donald J. Trump", url='https://twitter.com/realDonaldTrump',
                          icon_url="https://pbs.twimg.com/profile_images/874276197357596672/kUuht00m_normal.jpg")
         embed.set_footer(text=now,
