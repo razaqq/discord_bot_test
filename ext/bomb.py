@@ -7,12 +7,16 @@ import random
 class Bomb:
     def __init__(self, bot):
         self.bot = bot
-        self.config = self.bot.config
-        self.userdb = self.load_config()
+        self.bomb_config = self.load_bomb_config()
+        self.ts_config = self.load_ts_config()
         self.prefix = self.bot.config['prefix']
 
-    def load_config(self):
+    def load_bomb_config(self):
         with open(self.bot.root_dir + '/config/bomb.json', 'r', encoding='utf-8') as doc:
+            return json.load(doc)
+
+    def load_ts_config(self):
+        with open(self.bot.root_dir + '/config/ts3.json', 'r', encoding='utf-8') as doc:
             return json.load(doc)
 
     @commands.command(pass_context=True)
@@ -46,10 +50,10 @@ class Bomb:
             await self.bot.say('Usage: "{}bomb @USER"'.format(self.prefix))
 
     def tskick(self, user):
-        if str(user) in self.userdb:
-            to_kick = int(self.userdb[str(user)])
-            ts = server.TS3Server(self.config['ts3ip'], self.config['ts3port'], self.config['ts3sid'])
-            ts.login(self.config['ts3user'], self.config['ts3pass'])
+        if str(user) in self.bomb_config:
+            to_kick = int(self.bomb_config[str(user)])
+            ts = server.TS3Server(self.ts_config['ts3ip'], self.ts_config['ts3port'], self.ts_config['ts3sid'])
+            ts.login(self.ts_config['ts3user'], self.ts_config['ts3pass'])
             ts.set_client_nick('serveradmin')
             ts.clientkick(cldbid=to_kick, message='YOU EXPLODED!')
 
