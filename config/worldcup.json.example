@@ -1,7 +1,7 @@
 {
-  "server": "1234",
-  "main_channel": "1234",
-  "results_channel": "1234",
+  "guild": 1234,
+  "main_channel": 1234,
+  "results_channel": 1234,
   "messages": [1234, 1234, 1234],
   "api-token": "1234",
 

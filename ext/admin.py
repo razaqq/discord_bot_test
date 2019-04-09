@@ -28,36 +28,6 @@ class Admin(commands.Cog):
         with open(self.bot.root_dir + '/config/admin.json', 'r', encoding='utf-8') as admin_config:
             return json.load(admin_config)['admins']
 
-    # @commands.command(pass_context=True, hidden=True)
-    # async def load(self, ctx, module):
-    #    """Loads a module."""
-    #    author = ctx.message.author
-    #    if self.is_admin(author):
-    #        try:
-    #            self.bot.load_extension('ext.{}'.format(module))
-    #        except Exception as e:
-    #            await self.bot.say('```py\n{}\n```'.format(traceback.format_exc()))
-    #        else:
-    #            await self.bot.say('\N{OK HAND SIGN}')
-    #            logging.log(20, 'Ext {} was successfully loaded by {}'.format(module, author.name))
-    #    else:
-    #        await self.bot.say("You don't have permissions")
-
-    # @commands.command(pass_context=True, hidden=True)
-    # async def unload(self, ctx, module):
-    #    """Unloads a module."""
-    #    author = ctx.message.author
-    #    if self.is_admin(author):
-    #        try:
-    #            self.bot.unload_extension('ext.{}'.format(module))
-    #        except Exception as e:
-    #            await self.bot.say('```py\n{}\n```'.format(traceback.format_exc()))
-    #        else:
-    #            await self.bot.say('\N{OK HAND SIGN}')
-    #            logging.log(20, 'Ext {} was successfully unloaded by {}'.format(module, author.name))
-    #    else:
-    #        await self.bot.say("You don't have permissions")
-
     @commands.command(pass_context=True, name='reload', hidden=True)
     async def _reload(self, ctx, module):
         """Reloads a module."""
