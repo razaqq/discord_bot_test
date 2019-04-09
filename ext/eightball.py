@@ -2,7 +2,7 @@ from discord.ext import commands
 import random
 
 
-class EightBall:
+class EightBall(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.prefix = bot.config['prefix']
@@ -34,9 +34,9 @@ class EightBall:
                            "Very doubtful",
                            "You are gay pwnd"]
             answer = random.choice(answer_list)
-            await self.bot.say('{}: {}'.format(author.mention, answer))
+            await ctx.send('{}: {}'.format(author.mention, answer))
         else:
-            await self.bot.say('Usage: {}eightball <question>'.format(self.prefix))
+            await ctx.send('Usage: {}eightball <question>'.format(self.prefix))
 
 
 def setup(bot):

@@ -4,7 +4,7 @@ import json
 import asyncio
 
 
-class TS3:
+class TS3(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.config = self.load_config(self.bot.root_dir)
@@ -26,12 +26,12 @@ class TS3:
             if not tree:
                 tree = 'nobody is here <:feelsbad:345232499103891456>'
             ts.logout()
-            await self.bot.say('```{}```'.format(tree))
+            await ctx.send('```{}```'.format(tree))
 
     @ts.command(pass_context=True)
     async def poke(self, ctx, user=None, message=None):
         """Pokes a user with !ts poke "<username>" "Message here" """
-        author = ctx.message.author.name
+        author = ctx.author.name
         if not message:
             message = ''
         if user:
@@ -43,24 +43,24 @@ class TS3:
                 for cid in cids:
                     ts.clientpoke(cid, message)
                     ts.logout()
-                    await self.bot.say('\N{OK HAND SIGN}')
+                    await ctx.send('\N{OK HAND SIGN}')
             else:
-                await self.bot.say('No user named %s' % user)
+                await ctx.send('No user named %s' % user)
         else:
-            await self.bot.say('Usage: {}ts poke "<username>" "Message here"'.format(self.prefix))
+            await ctx.send('Usage: {}ts poke "<username>" "Message here"'.format(self.prefix))
 
-    @ts.command()
-    async def lastseen(self, user):
+    @ts.command(pass_context=True)
+    async def lastseen(self, ctx, user):
         """Shows the time since a user has been seen last"""
         ts = TS3Server(self.config['ts3ip'], self.config['ts3port'], self.config['ts3sid'])
         ts.login(self.config['ts3user'], self.config['ts3pass'])
         ts.set_client_nick('serveradmin')
         cldbids = ts.get_dbclids(user)
         if not cldbids:
-            await self.bot.say('No user with that name')
+            await ctx.send('No user with that name')
             return
         for cldbid in cldbids:
-            await self.bot.say(ts.lastseen(cldbid))
+            await ctx.send(ts.lastseen(cldbid))
         ts.logout()
 
     async def afk_check(self):

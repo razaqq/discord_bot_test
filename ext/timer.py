@@ -51,19 +51,19 @@ class CountDown:
         return unicode[number] + '\N{COMBINING ENCLOSING KEYCAP}'
 
 
-class DiscordTimer:
+class DiscordTimer(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.timer_count = 0
 
     async def update_timer(self, timer, t):
         if not timer.msg:
-            msg = await self.bot.send_message(timer.channel, t[0])
+            msg = await timer.channel.send(t[0])
             timer.msg = msg
         else:
-            await self.bot.edit_message(timer.msg, t[0])
+            await timer.msg.edit(content=str(t[0]))
             if t[1] == 0:
-                await self.bot.edit_message(timer.msg, t[0] + timer.author.mention)
+                await timer.msg.edit(content='{} {}'.format(t[0], timer.author.mention))
 
     def create_timer(self, seconds, channel, author):
         if self.timer_count < 3 and seconds <= 600:
@@ -77,7 +77,7 @@ class DiscordTimer:
     @commands.command(pass_context=True)
     async def timer(self, ctx, seconds):
         if not self.create_timer(int(seconds), ctx.message.channel, ctx.message.author):
-            await self.bot.say('10 Mins max and 3 timers at once only nerd')
+            await ctx.send('10 Mins max and 3 timers at once only nerd')
 
 
 def setup(bot):

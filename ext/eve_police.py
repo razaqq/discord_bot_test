@@ -1,8 +1,9 @@
 import json
 import logging
+from discord.ext import  commands
 
 
-class EvePolice:
+class EvePolice(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.prefix = self.bot.config['prefix']
@@ -36,8 +37,8 @@ class EvePolice:
 
         if self.inspect(message.content):
             logging.info("Deleting message: {}".format(message.content))
-            await self.bot.delete_message(message)
-            await self.bot.send_message(message.channel, "This in an eve-safe channel.")
+            await message.delete()
+            await message.channel.send("This in an eve-safe channel.")
 
 
 def setup(bot):

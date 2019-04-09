@@ -1,7 +1,7 @@
 from discord.ext import commands
 
 
-class Convert:
+class Convert(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.units = ['millimeter(s) aka mm',
@@ -32,10 +32,10 @@ class Convert:
         }
         self.usage = 'Usage: {}convert <amount> <unit1> <unit2>'.format(self.bot.config['prefix'])
 
-    @commands.command()
-    async def convert(self, amount1, unit1, unit2):
+    @commands.command(pass_context=True)
+    async def convert(self, ctx, amount1, unit1, unit2):
         """Converts length units from meters to a subhuman unit and back"""
-        await self.bot.say(self._convert(amount1, unit1, unit2))
+        await ctx.send(self._convert(amount1, unit1, unit2))
 
     def _convert(self, amount1, unit1, unit2):
         if unit1.endswith('s'):

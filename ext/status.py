@@ -5,9 +5,10 @@ from datetime import datetime, timedelta
 import os
 import sqlite3
 from discord.ext import commands
+from discord import File
 
 
-class Status:
+class Status(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.conn = sqlite3.connect('{}/databases/status.db'.format(self.bot.root_dir))
@@ -126,20 +127,15 @@ class Status:
 
     @commands.command(pass_context=True)
     async def status(self, ctx):
-        channel = ctx.message.channel
-
         self.generate_cpu_load_plot()
         self.generate_cpu_temp_plot()
         self.generate_net_usage_plot()
         self.generate_mem_usage_plot()
-        with open('cpu_load_plot.png', 'rb') as f:
-            await self.bot.send_file(channel, f)
-        with open('cpu_temp_plot.png', 'rb') as f:
-            await self.bot.send_file(channel, f)
-        with open('mem_usage_plot.png', 'rb') as f:
-            await self.bot.send_file(channel, f)
-        with open('net_usage_plot.png', 'rb') as f:
-            await self.bot.send_file(channel, f)
+
+        await ctx.send(files=[File('cpu_load_plot.png'),
+                              File('cpu_temp_plot.png'),
+                              File('mem_usage_plot.png'),
+                              File('net_usage_plot.png')])
         self.del_plots()
 
 

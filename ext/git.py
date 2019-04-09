@@ -5,7 +5,7 @@ import traceback
 import logging
 
 
-class Gist:
+class Gist(commands.Cog):
     def __init__(self, url):
         self.gist_url = url
         self.gist_id = url.split('/')[-1]

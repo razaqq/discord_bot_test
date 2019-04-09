@@ -10,7 +10,7 @@ import asyncio
 import logging
 
 
-class WorldCup:
+class WorldCup(commands.Cog):
     def __init__(self, root_dir, server, api_key):
         self.conn = sqlite3.connect('{}/databases/worldcup.db'.format(root_dir))
         self.cursor = self.conn.cursor()
@@ -401,10 +401,10 @@ class DiscordWorldCup:
     def __init__(self, bot):
         self.bot = bot
         self.config = self.load_config(self.bot.root_dir)
-        self.server = discord.utils.get(self.bot.servers, id=str(self.config['server']))
-        self.main_channel = self.server.get_channel(str(self.config['main_channel']))
-        self.results_channel = self.server.get_channel(str(self.config['results_channel']))
-        self.wc = WorldCup(self.bot.root_dir, self.server, self.config['api-token'])
+        self.guild = self.bot.get_guild(self.config['guild'])
+        self.main_channel = self.guild.get_channel(self.config['main_channel'])
+        self.results_channel = self.guild.get_channel(self.config['results_channel'])
+        self.wc = WorldCup(self.bot.root_dir, self.guild, self.config['api-token'])
         # bot.loop.create_task(self.start())
 
     async def start(self):
@@ -447,7 +447,7 @@ class DiscordWorldCup:
             t.field_names = ['Player', 'Bet']
             t.align['Player'] = 'l'
             for vote in votes:
-                nick = discord.utils.get(self.server.members, id=str(vote[6])).nick
+                nick = discord.utils.get(self.guild.members, id=str(vote[6])).nick
                 row = [nick, '{}:{}'.format(vote[4], vote[5])]
                 t.add_row(row)
 
@@ -465,25 +465,25 @@ class DiscordWorldCup:
                 t.align['Player'] = 'l'
                 votes = self.wc.get_bets_by_game(999)
                 for vote in votes:
-                    nick = discord.utils.get(self.server.members, id=str(vote[6])).nick
+                    nick = discord.utils.get(self.guild.members, id=str(vote[6])).nick
                     row = [nick, vote[2]]
                     t.add_row(row)
                 msg += '\n```{}```'.format(t)
 
-            await self.bot.send_message(self.results_channel, msg)
+            await self.results_channel.send(msg)
 
         messages = await self.get_messages()
         tables = self.wc.get_game_plan()
         for table in tables:
             m = messages[tables.index(table)]
-            await self.bot.edit_message(m, '```' + str(table) + '```')
+            await m.edit(content='```{}```'.format(table))
             await asyncio.sleep(1.2)
         tables = self.wc.get_group_tables()
         for table in tables:
             m = messages[tables.index(table) + 4]
-            await self.bot.edit_message(m, '```' + table + '```')
+            await m.edit(content='```{}```'.format(table))
             await asyncio.sleep(1.2)
-        await self.bot.edit_message(messages[6], '```' + str(self.wc.get_player_stats()) + '```')
+        await messages[6].edit(content='```{}```'.format(self.wc.get_player_stats()))
         await asyncio.sleep(1.2)
         msg = 'Commands for FIFA WorldCup 2018:\n\n' \
               '!bet <gameid> <score1>:<score2>, ex: !bet 12 3:3 - to save a vote\n' \
@@ -495,13 +495,13 @@ class DiscordWorldCup:
               'Means you can get 0, 1 or 3 points per game and 6 points if you guess right tournament winner\n\n' \
               'Tables in this channel will update every 30 minutes, texting is disabled\n' \
               'last update: {}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-        await self.bot.edit_message(messages[7], '```' + msg + '```')
+        await messages[7].edit(content='```' + msg + '```')
 
     async def get_messages(self):
         messages = []
         for m_id in self.config['messages']:
             try:
-                messages.append(await self.bot.get_message(self.main_channel, str(m_id)))
+                messages.append(await self.bot.fetch_message(self.main_channel, str(m_id)))
             except discord.NotFound:
                 await self.bot.send_message(self.main_channel, 'Some nerd deleted some of the messages, please fix')
             except discord.Forbidden:
@@ -514,61 +514,61 @@ class DiscordWorldCup:
         if message.author.bot:
             return
         elif message.channel == self.main_channel:
-            await self.bot.delete_message(message)
-        # if message.content == 'update' and message.channel == self.channel:
-            # await self.clear_channel()
-            # await self.update_channel()
+            await message.delete()
 
     @commands.command(pass_context=True)
     async def bet(self, ctx, game=None, score=None):
         """Bet a score for a game"""
-        player_id = ctx.message.author.id
+        player_id = ctx.author.id
         if game and score:
             try:
                 # await self.bot.delete_message(msg)
                 score = score.split(':')
                 _res = self.wc.add_bet(player_id, game, int(score[0]), int(score[1]))
-                await self.bot.send_message(ctx.message.author, _res)
+                await ctx.author.send(_res)
             except:
-                await self.bot.say('Usage: !bet <id> <score1>:<score2>, ex: !bet 24 3:3')
+                await ctx.send('Usage: !bet <id> <score1>:<score2>, ex: !bet 24 3:3')
         else:
-            await self.bot.say('Usage: !bet <id> <score1>:<score2>, ex: !bet 24 3:3')
+            await ctx.send('Usage: !bet <id> <score1>:<score2>, ex: !bet 24 3:3')
 
-    @commands.command()
-    async def wcupdate(self):
+    @commands.command(pass_context=True)
+    async def wcupdate(self, ctx):
         """Updates tables etc."""
-        msg = await self.bot.say('Updating...')
+        msg = await ctx.send('Updating...')
         await self.update_channel()
         if msg.channel == self.main_channel:
             await asyncio.sleep(3)
-            await self.bot.delete_message(msg)
+            await msg.delete()
 
     @commands.command(pass_context=True)
     async def bets(self, ctx):
         """Shows your bets"""
-        author = ctx.message.author
-        tables = self.wc.get_bets_by_player(int(author.id), True)
+        author = ctx.author
+        tables = self.wc.get_bets_by_player(author.id, True)
         for t in tables:
-            await self.bot.send_message(author, '```' + t + '```')
+            await author.send('```{}```'.format(t))
 
     @commands.command(pass_context=True)
     async def betwizard(self, ctx):
         """EZ wizard for betting, your a wizard harry"""
         author = ctx.message.author
-        await self.bot.send_message(author, 'Hi, I will guide you through all bets now.\n')
-        await self.bot.send_message(author, 'Please enter a range of bets you want to do like 0-64 '
-                                            'or type "all" to do all now (valid range: 1-64)\n'
-                                            'you have 30 seconds')
+        await author.send('Hi, I will guide you through all bets now.\n')
+        await author.send('Please enter a range of bets you want to do like 0-64 '
+                          'or type "all" to do all now (valid range: 1-64)\n'
+                          'you have 30 seconds')
 
         def check(msg):
-            if msg:
+            if msg and msg.author == ctx.message.author:
                 a = 'all' in msg.content
                 b = '-' in msg.content and len(msg.content) >= 3
                 return a or b
             else:
                 return False
 
-        msg = await self.bot.wait_for_message(author=author, check=check, timeout=30)
+        try:
+            msg = await self.bot.wait_for('message', check=check, timeout=30.0)
+        except asyncio.TimeoutError:
+            await ctx.send('You waited too long, restart the wizard please')
 
         if check(msg):
             if msg.content == 'all':
@@ -581,17 +581,16 @@ class DiscordWorldCup:
                     start = int(start)
                     stop = int(stop)
                 except:
-                    return await self.bot.send_message(author, 'I only accept numbers as range')
+                    return await author.send('I only accept numbers as range')
 
             if start < 1 or stop > 64:
-                return await self.bot.send_message(author, 'Only range 1-64 allowed')
+                return await author.send('Only range 1-64 allowed')
 
             games = self.wc.get_game_list()
             votes = self.wc.get_bets_by_player(author.id)
 
-            await self.bot.send_message(author, 'Im going to ask you the bets now.')
-            await self.bot.send_message(author, 'Please respond in this format: "2:0" without the "')
-            # await self.bot.send_message(author, ' ')
+            await author.send('Im going to ask you the bets now.')
+            await author.send('Please respond in this format: "2:0" without the "')
 
             def check_votes(g):
                 v = False
@@ -608,8 +607,8 @@ class DiscordWorldCup:
                 if g.game > stop:
                     break
                 if not g.team1 or not g.team2:
-                    return await self.bot.send_message(author, 'OK can only go this far, rest is knockout games '
-                                                               'and not known yet. I saved {} bets'.format(saved))
+                    return await author.send('OK can only go this far, rest is knockout games '
+                                             'and not known yet. I saved {} bets'.format(saved))
                 if len(g.game_details) == 1:
                     game_type = 'Group {}'.format(g.game_details)
                 else:
@@ -617,16 +616,19 @@ class DiscordWorldCup:
                 v = check_votes(g)
                 if v:
                     print(v)
-                    await self.bot.send_message(author, 'Game {}: {} vs {} ({}) (your current bid is {}:{})'.format(
+                    await author.send('Game {}: {} vs {} ({}) (your current bid is {}:{})'.format(
                         g.game, g.team1, g.team2, game_type, v[4], v[5]
                     ))
                 else:
                     await self.bot.send_message(author, 'Game {}: {} vs {} ({})'.format(
                         g.game, g.team1, g.team2, game_type
                     ))
-                msg = await self.bot.wait_for_message(author=author, timeout=60)
-                if not msg:
-                    return await self.bot.send_message(author, 'You took too long, please restart from here')
+
+                try:
+                    msg = await self.bot.wait_for('message', check=lambda a: a == author, timeout=60.0)
+                except asyncio.TimeoutError:
+                    await ctx.send('You took too long, please restart from here')
+
                 try:
                     msg = msg.content.split(':')
                     game1_score = int(msg[0])
@@ -634,19 +636,19 @@ class DiscordWorldCup:
                     self.wc.add_bet(author.id, g.game, game1_score, game2_score)
                     saved += 1
                 except:
-                    return await self.bot.send_message(author, 'What you entered makes no sense, please restart. \n'
-                                                               'However i saved the previous {} bets'.format(saved))
-            await self.bot.send_message(author, 'Nice we are done! I saved {} bets you gave me'.format(saved))
+                    return await author.send('What you entered makes no sense, please restart. \n'
+                                             'However i saved the previous {} bets'.format(saved))
+            await author.send('Nice we are done! I saved {} bets you gave me'.format(saved))
         else:
-            return await self.bot.send_message(author, 'That failed, please restart')
+            return await author.send('That failed, please restart')
 
     @commands.command(pass_context=True)
     async def wcwinner(self, ctx, team=None):
-        author = ctx.message.author
+        author = ctx.author
         if team:
-            await self.bot.send_message(author, self.wc.bet_winner(int(author.id), team))
+            await author.send(self.wc.bet_winner(author.id, team))
         else:
-            await self.bot.send_message(author, 'Usage: !wcwinner <team>')
+            await author.send('Usage: !wcwinner <team>')
 
 
 def setup(bot):

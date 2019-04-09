@@ -1,15 +1,16 @@
 from discord.ext import commands
 
 
-class Flip:
+class Flip(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.config = self.bot.config
 
     @commands.command()
-    async def flip(self, *, string=None):
+    async def flip(self, ctx, *, string=None):
         """Makes you feel like an australian"""
         if string:
+            string = string.lower()
             chars = "abcdefghijklmnopqrstuvwxyz"
             tran = "ɐqɔpǝɟƃɥᴉɾʞlɯuodbɹsʇnʌʍxʎz"
             end_string = ''
@@ -26,10 +27,10 @@ class Flip:
                 else:
                     end_string += c
 
-            await self.bot.say(end_string)
-            await self.bot.say('*Do you feel like an australian yet?*')
+            await ctx.send(end_string)
+            await ctx.send('*Do you feel like an australian yet?*')
         else:
-            await self.bot.say('Usage: {}flip <your text here>'.format(self.config['prefix']))
+            await ctx.send('Usage: {}flip <your text here>'.format(self.config['prefix']))
 
 
 def setup(bot):
