@@ -8,7 +8,7 @@ from discord.ext import commands
 from datetime import datetime
 
 
-class TrumpQuote:
+class TrumpQuote(commands.Cog):
     def __init__(self, root_dir):
         # sqlite
         self.conn = sqlite3.connect('{}/databases/trump_quotes.db'.format(root_dir))
@@ -156,7 +156,7 @@ class DiscordTrumpQuote:
             if self.last_quote is not None:  # does a quote exist?
                 await self.bot.delete_message(self.last_quote)  # remove old quote
             q = TrumpQuote(self.bot.root_dir)
-            self.last_quote = await self.bot.say(q.text)
+            self.last_quote = await ctx.send(q.text)
 
             await self.bot.add_reaction(self.last_quote, '👍')
             await self.bot.add_reaction(self.last_quote, '👎')
@@ -174,12 +174,12 @@ class DiscordTrumpQuote:
             await self.bot.edit_message(self.last_quote, q.get_result())
             del q
 
-    @trump.command()
-    async def stats(self):
+    @trump.command(pass_context=True)
+    async def stats(self, ctx):
         """Shows stats"""
         s = Stats(self.bot.root_dir)
         table = s.get_table()
-        await self.bot.say('```' + str(table) + '```')
+        await ctx.send('```' + str(table) + '```')
         del s
 
     @trump.command(pass_context=True)
@@ -192,9 +192,9 @@ class DiscordTrumpQuote:
             _q.add_quote(quote, answer)
             logging.log(20, '{}: {} added the quote "{}" with answer {}'.format(datetime.now(), author, quote, answer))
             await self.bot.delete_message(msg)
-            await self.bot.say('Added your quote successfully! Use {}trump add <"quote"> <"True/False">'.format(self.prefix))
+            await ctx.send('Added your quote successfully! Use {}trump add <"quote"> <"True/False">'.format(self.prefix))
         else:
-            await self.bot.say('Use {}trump add <"quote"> <"True/False">'.format(self.prefix))
+            await ctx.send('Use {}trump add <"quote"> <"True/False">'.format(self.prefix))
 
 
 def setup(bot):

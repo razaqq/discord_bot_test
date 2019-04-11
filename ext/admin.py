@@ -113,7 +113,7 @@ class Admin(commands.Cog):
             except Exception as e:
                 await ctx.send('```py\n{}\n```'.format(traceback.format_exc()))
             else:
-                await self.bot.say('\N{OK HAND SIGN}')
+                await ctx.send('\N{OK HAND SIGN}')
                 logging.log(20, 'Ext "{}" was successfully disabled by {}'.format(module, author.name))
         else:
             await ctx.send("You don't have permissions")
