@@ -4,7 +4,7 @@ import json
 import discord
 
 
-class FakeNews:
+class FakeNews(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.prefix = self.bot.config['prefix']
@@ -18,15 +18,16 @@ class FakeNews:
     @commands.command(pass_context=True, hidden=True)
     async def fake(self, ctx, *, text=None):
         msg = ctx.message
-        if msg.channel.is_private and msg.author != self.bot.user and text:
-            await self.bot.say("Preparing your tweet...")
+        if msg.guild is None and msg.author != self.bot.user and text:
+            await ctx.send("Preparing your tweet...")
             # in private channel with msg.author
-            all_servers = self.bot.servers
-            server = discord.utils.get(all_servers, id=self.config['server_id'])
-            channel = server.get_channel(self.config['channel_id'])
+            # all_guilds = self.bot.guilds
+            # guild = discord.utils.get(all_guilds, id=self.config['server_id'])
+            guild = self.bot.get_guild(id=self.config['guild_id'])
+            channel = guild.get_channel(self.config['channel_id'])
             await self.send_fake_news(text, channel)
         else:
-            await self.bot.say("Git gud")
+            await ctx.send("Git gud")
 
     async def send_fake_news(self, text, channel):
         now = datetime.datetime.now()
@@ -38,7 +39,7 @@ class FakeNews:
                          icon_url='https://abs.twimg.com/icons/apple-touch-icon-192x192.png')
         embed.set_thumbnail(url='https://abs.twimg.com/icons/apple-touch-icon-192x192.png')
 
-        await self.bot.send_message(channel, embed=embed)
+        await channel.send(embed=embed)
 
 
 def setup(bot):

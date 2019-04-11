@@ -5,9 +5,10 @@ import json
 import asyncio
 import os
 from html import unescape
+from discord.ext import commands
 
 
-class TrumpTwitter:
+class TrumpTwitter(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.config = self.load_config(self.bot.root_dir)
@@ -44,7 +45,6 @@ class TrumpTwitter:
 
             if self.last_id:  # don't post on first run
                 await self.process_tweets(tries[x])  # process the result
-                print(self.last_id, tries[x])
             if len(tries[x]) > 0:  # set last_id to newest one
                 self.last_id = tries[x][0].id
             await asyncio.sleep(60)  # pull every minute
@@ -73,9 +73,8 @@ class TrumpTwitter:
                                   tweet.user.profile_image_url_https, image)
 
     async def post_tweet(self, id_str, username, created_at, text, avatar, image):
-        all_servers = self.bot.servers
-        server = discord.utils.get(all_servers, id=self.config['server_id'])
-        channel = server.get_channel(self.config['channel_id'])
+        guild = self.bot.get_guild(self.config['guild_id'])
+        channel = guild.get_channel(self.config['channel_id'])
 
         url = 'https://twitter.com/statuses/{}'.format(id_str)
 
@@ -87,7 +86,7 @@ class TrumpTwitter:
         if image:
             embed.set_image(url=image)
 
-        await self.bot.send_message(channel, embed=embed)
+        await channel.send(embed=embed)
 
 
 def setup(bot):

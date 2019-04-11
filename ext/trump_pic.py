@@ -4,7 +4,7 @@ import requests
 import random
 
 
-class TrumpPic:
+class TrumpPic(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.config = self.load_config(self.bot.root_dir)
@@ -14,14 +14,14 @@ class TrumpPic:
         with open(root_dir + '/config/trump_pic.json', 'r', encoding='utf-8') as doc:
             return json.load(doc)
 
-    @commands.command()
-    async def trumppic(self):
+    @commands.command(pass_context=True)
+    async def trumppic(self, ctx):
         i = ImageSearch(self.config['api_key'], self.config['cx'], 'donald+trump', 1)
         img = i.get_image()
         if img:
-            await self.bot.say(img)
+            await ctx.send(img)
         else:
-            await self.bot.say('Something went turbowrong, retry')
+            await ctx.send('Something went turbowrong, retry')
 
 
 class ImageSearch:

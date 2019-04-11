@@ -8,7 +8,7 @@ import datetime
 from math import ceil
 
 
-class RemindMe:
+class RemindMe(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.prefix = bot.config['prefix']
@@ -67,38 +67,38 @@ class RemindMe:
         return [(r['FINISHES'], r['MESSAGE']) for r in self.saved_reminders if r['USER'] == user]
 
     @commands.command(pass_context=True, no_pm=True)
+    @commands.guild_only()
     async def remindme(self, ctx, quantity: int = 0, time_unit: str = None, *, text: str = None):
-        if time_unit:
+        time_unit = time_unit.lower()
+        if (quantity > 0) and text and (time_unit in self.units):
             time_unit = time_unit.lower()
+            s = ''
             if time_unit.endswith("s"):
                 time_unit = time_unit[:-1]
                 s = 's'
-            else:
-                s = ''
 
-        if (quantity > 0) and text and (time_unit in self.units):
             user = ctx.message.author.id
-            server = ctx.message.server.id
+            guild = ctx.message.guild.id
             channel = ctx.message.channel.id
             seconds = quantity * self.units[time_unit]
             finishes = int(time.time() + seconds)
-            self.add_reminder(user, server, channel, finishes, text)
-            await self.bot.say('Will remind you in {} {}{}: "{}"'.format(str(quantity), time_unit, s, text))
+            self.add_reminder(user, guild, channel, finishes, text)
+            await ctx.send('Will remind you in {} {}{}: "{}"'.format(str(quantity), time_unit, s, text))
         else:
-            await self.bot.say('Usage: {}remindme <amount> <unit> <message>'.format(self.prefix))
+            await ctx.send('Usage: {}remindme <amount> <unit> <message>'.format(self.prefix))
 
     @commands.command(pass_context=True, no_pm=True)
     async def forgetme(self, ctx):
         user = ctx.message.author.id
         self.remove_all_reminders(user)
-        await self.bot.say('\N{OK HAND SIGN}')
+        await ctx.send('\N{OK HAND SIGN}')
 
     @commands.command(pass_context=True, no_pm=True)
     async def reminders(self, ctx):
         user = ctx.message.author.id
         res = self.get_reminders(user)
         if not res:
-            await self.bot.say('No reminders saved for you!')
+            await ctx.send('No reminders saved for you!')
             return
 
         t = PrettyTable()
@@ -118,17 +118,16 @@ class RemindMe:
                 row = ['', r[1][80*i:80*(i+1)]]
                 t.add_row(row)
 
-        await self.bot.say('```{}```'.format(t.get_string()))
+        await ctx.send('```{}```'.format(t.get_string()))
 
     async def check_reminders(self):
         while self is self.bot.get_cog('RemindMe'):
             for reminder in self.saved_reminders:
                 if reminder['FINISHES'] <= int(time.time()):
-                    all_servers = self.bot.servers
-                    server = discord.utils.get(all_servers, id=str(reminder['SERVER']))
-                    channel = server.get_channel(str(reminder['CHANNEL']))
-                    user = discord.User(id=reminder['USER'])
-                    await self.bot.send_message(channel, '{} Here is your reminder: "{}"'.format(user.mention, reminder["MESSAGE"]))
+                    guild = self.bot.get_guild(reminder['SERVER'])
+                    channel = guild.get_channel(reminder['CHANNEL'])
+                    user = self.bot.get_user(id=reminder['USER'])
+                    await channel.send('{} Here is your reminder: "{}"'.format(user.mention, reminder["MESSAGE"]))
                     self.remove_reminder(reminder['USER'], reminder['FINISHES'], reminder['MESSAGE'])
             await asyncio.sleep(10)
 

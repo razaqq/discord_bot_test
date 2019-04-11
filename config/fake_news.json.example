@@ -1,3 +1,2 @@
-{
-"server_id": "1234",
-"channel_id": "1234"}
+{"server_id": 1234,
+"channel_id": 1234}

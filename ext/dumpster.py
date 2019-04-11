@@ -3,7 +3,7 @@ from ts3py import server
 import json
 
 
-class Dumpster:
+class Dumpster(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.config = self.load_config(self.bot.root_dir)
@@ -30,14 +30,14 @@ class Dumpster:
                     if res1:
                         ts.clientpoke(cid, 'You just got dumpstered by {}'.format(author))
                         ts.logout()
-                        await self.bot.say('\N{OK HAND SIGN}')
+                        await ctx.send('\N{OK HAND SIGN}')
                     else:
-                        await self.bot.say('He is already there...')
+                        await ctx.send('He is already there...')
 
             else:
-                await self.bot.say('No user named {}'.format(name))
+                await ctx.send('No user named {}'.format(name))
         else:
-            await self.bot.say('Usage: {}dumpster <user>'.format(self.bot.config['prefix']))
+            await ctx.send('Usage: {}dumpster <user>'.format(self.bot.config['prefix']))
 
 
 def setup(bot):

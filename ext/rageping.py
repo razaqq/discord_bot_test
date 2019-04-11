@@ -2,7 +2,7 @@ from discord.ext import commands
 import asyncio
 
 
-class RagePing:
+class RagePing(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.prefix = self.bot.config['prefix']
@@ -15,14 +15,14 @@ class RagePing:
         user_mentions = msg.mentions
 
         async def print_usage():
-            await self.bot.say('Usage: "{}rageping @ROLE <amount>"; You can mention one role/user '
-                               'or a list of roles/users'.format(self.prefix))
+            await ctx.send('Usage: "{}rageping @ROLE <amount>"; You can mention one role/user '
+                           'or a list of roles/users'.format(self.prefix))
 
         try:
             m_arr = msg.content.split(' ')
             amount = int(m_arr[len(m_arr) - 1])
             if amount > 20:
-                await self.bot.say('Calm down! 20 pings max')
+                await ctx.send('Calm down! 20 pings max')
                 return
         except ValueError:
             if ctx.message.content.endswith('>'):
@@ -35,13 +35,13 @@ class RagePing:
             for role_mention in role_mentions:
                 mention = role_mention.mention
                 for i in range(amount):
-                    await self.bot.say(mention)
+                    await ctx.send(mention)
                     await asyncio.sleep(1)
 
             for user_mention in user_mentions:
                 mention = user_mention.mention
                 for i in range(amount):
-                    await self.bot.say(mention)
+                    await ctx.send(mention)
                     await asyncio.sleep(1)
 
         else:

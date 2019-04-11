@@ -80,14 +80,14 @@ class Bot(commands.Bot):
         logging.log(20, 'discord.py version : {} '.format(discord.__version__))
         logging.log(20, 'Start time         : {} '.format(self.start_time))
         logging.log(20, '------------------------')
-        logging.log(20, 'Connected servers:')
-        for server in self.servers:
-            logging.log(20, '- {} ({})'.format(server, server.id))
+        logging.log(20, 'Connected guilds:')
+        for guild in self.guilds:
+            logging.log(20, '- {} ({})'.format(guild, guild.id))
         logging.log(20, '------------------------')
 
     async def help_status(self):
         await self.wait_until_ready()
-        await self.change_presence(game=discord.Game(name='Type {}help'.format(self.config['prefix'])))
+        await self.change_presence(activity=(discord.Game(name='Type {}help'.format(self.config['prefix']))))
 
     async def on_message(self, message):
         """
@@ -114,10 +114,15 @@ class Bot(commands.Bot):
         stdout_handler.setFormatter(formatter)
         logger.addHandler(stdout_handler)
 
-    async def on_command_error(self, exception, ctx):
-        if isinstance(exception, commands.CommandNotFound):
-            await self.send_message(ctx.message.channel, '{}. Use {}help for a list of commands!'
-                                                         ''.format(exception, self.config['prefix']))
+    async def on_command_error(self, ctx, error):
+        if isinstance(error, commands.CommandNotFound):
+            await ctx.send('{}. Use {}help for a list of commands!'
+                                           ''.format(error, self.config['prefix']))
+            return
+
+        if isinstance(error, commands.NoPrivateMessage):
+            await ctx.send('This command cannot be used in private messages.')
+            return
 
         if self.extra_events.get('on_command_error', None):
             return
@@ -126,7 +131,7 @@ class Bot(commands.Bot):
             return
 
         print('Ignoring exception in command {}'.format(ctx.command), file=sys.stderr)
-        traceback.print_exception(type(exception), exception, exception.__traceback__, file=sys.stderr)
+        traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
 
 if __name__ == '__main__':
