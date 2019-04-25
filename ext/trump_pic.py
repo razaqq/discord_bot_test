@@ -15,8 +15,14 @@ class TrumpPic(commands.Cog):
             return json.load(doc)
 
     @commands.command(pass_context=True)
-    async def trumppic(self, ctx):
-        i = ImageSearch(self.config['api_key'], self.config['cx'], 'donald+trump', 1)
+    async def trumppic(self, ctx, *, query=None):
+        if not query:
+            i = ImageSearch(self.config['api_key'], self.config['cx'], 'donald+trump', 1, 100)
+        else:
+            search_query = 'donald+trump'
+            for word in query.split(' '):
+                search_query += '+{}'.format(word)
+            i = ImageSearch(self.config['api_key'], self.config['cx'], search_query, 1, 10)
         img = i.get_image()
         if img:
             await ctx.send(img)
@@ -25,13 +31,14 @@ class TrumpPic(commands.Cog):
 
 
 class ImageSearch:
-    def __init__(self, api_key, cx, query, num):
+    def __init__(self, api_key, cx, query, amount, max_query_num):
         self.url = 'https://www.googleapis.com/customsearch/v1?' \
                     'key={}&cx={}&q={}&searchType=image&num={}' \
-                    '&imgType=face'.format(api_key, cx, query, num)
+                    '&imgType=face'.format(api_key, cx, query, amount)
+        self.max_query_num = max_query_num
 
     def get_image(self):
-        start = str(random.randint(1, 100))
+        start = str(random.randint(1, self.max_query_num))
         r = requests.get(self.url + '&start=' + start)
         data = r.json()
         if 'items' in data:
