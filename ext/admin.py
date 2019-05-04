@@ -34,9 +34,15 @@ class Admin(commands.Cog):
         author = ctx.message.author
         if self.is_admin(author):
             try:
-                self.bot.unload_extension('ext.{}'.format(module))
-                self.bot.load_extension('ext.{}'.format(module))
-            except Exception as e:
+                self.bot.reload_extension('ext.{}'.format(module))
+            except commands.ExtensionNotLoaded:
+                return ctx.send('That ext is not enabled')
+            except commands.ExtensionNotFound:
+                return await ctx.send("There is no ext with that name")
+            except commands.NoEntryPointError:
+                return await ctx.send('That ext has no setup function')
+            except commands.ExtensionFailed as e:
+                await ctx.send('Something went wrong when I tried to enable that ext:')
                 await ctx.send('```py\n{}\n```'.format(traceback.format_exc()))
             else:
                 await ctx.send('\N{OK HAND SIGN}')
@@ -76,17 +82,21 @@ class Admin(commands.Cog):
         if self.is_admin(author):
             try:
                 enabled_exts = self.config['enabled_exts'].split(',')
-                if str(module) in enabled_exts:
-                    return await ctx.send("This module is already enabled")
-                else:
-                    enabled_exts.append(str(module))
-                    enabled_str = ",".join(x for x in enabled_exts)
-                    self.config['enabled_exts'] = enabled_str
-                    self.write_main_config()
+                self.bot.load_extension('ext.{}'.format(module))
+                enabled_exts.append(str(module))
+                enabled_str = ",".join(x for x in enabled_exts)
+                self.config['enabled_exts'] = enabled_str
+                self.write_main_config()
 
-                    self.bot.load_extension('ext.{}'.format(module))
-            except Exception as e:
-                await ctx.send('```py\n{}\n```'.format(traceback.format_exc()))
+            except commands.ExtensionNotFound:
+                return await ctx.send("There is no ext with that name")
+            except commands.ExtensionAlreadyLoaded:
+                return await ctx.send("This ext is already enabled")
+            except commands.NoEntryPointError:
+                return await ctx.send('That ext has no setup function')
+            except commands.ExtensionFailed as e:
+                await ctx.send('Something went wrong when I tried to enable that ext:')
+                return await ctx.send('```py\n{}\n```'.format(traceback.format_exc()))
             else:
                 await ctx.send('\N{OK HAND SIGN}')
                 logging.log(20, 'Ext "{}" was successfully enabled by {}'.format(module, author.name))
@@ -100,18 +110,13 @@ class Admin(commands.Cog):
         if self.is_admin(author):
             try:
                 enabled_exts = self.config['enabled_exts'].split(',')
-                if not str(module) in enabled_exts:
-                    await ctx.send("This module is already disabled")
-                    return
-                else:
-                    enabled_exts.remove(str(module))
-                    enabled_str = ",".join(x for x in enabled_exts)
-                    self.config['enabled_exts'] = enabled_str
-                    self.write_main_config()
-
-                    self.bot.unload_extension('ext.{}'.format(module))
-            except Exception as e:
-                await ctx.send('```py\n{}\n```'.format(traceback.format_exc()))
+                self.bot.unload_extension('ext.{}'.format(module))
+                enabled_exts.remove(str(module))
+                enabled_str = ",".join(x for x in enabled_exts)
+                self.config['enabled_exts'] = enabled_str
+                self.write_main_config()
+            except commands.ExtensionNotLoaded:
+                return ctx.send('That ext is not enabled')
             else:
                 await ctx.send('\N{OK HAND SIGN}')
                 logging.log(20, 'Ext "{}" was successfully disabled by {}'.format(module, author.name))
