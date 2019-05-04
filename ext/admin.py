@@ -28,28 +28,6 @@ class Admin(commands.Cog):
         with open(self.bot.root_dir + '/config/admin.json', 'r', encoding='utf-8') as admin_config:
             return json.load(admin_config)['admins']
 
-    @commands.command(pass_context=True, name='reload', hidden=True)
-    async def _reload(self, ctx, module):
-        """Reloads a module."""
-        author = ctx.message.author
-        if self.is_admin(author):
-            try:
-                self.bot.reload_extension('ext.{}'.format(module))
-            except commands.ExtensionNotLoaded:
-                return await ctx.send('There is no ext enabled with that name')
-            except commands.ExtensionNotFound:
-                return await ctx.send("There is no ext with that name")
-            except commands.NoEntryPointError:
-                return await ctx.send('That ext has no setup function')
-            except commands.ExtensionFailed as e:
-                await ctx.send('Something went wrong when I tried to enable that ext:')
-                await ctx.send('```py\n{}\n```'.format(traceback.format_exc()))
-            else:
-                await ctx.send('\N{OK HAND SIGN}')
-                logging.log(20, 'Ext {} was successfully reloaded by {}'.format(module, author.name))
-        else:
-            await ctx.send("You don't have permissions")
-
     @commands.group(hidden=True, pass_context=True)
     async def exts(self, ctx):
         if ctx.invoked_subcommand is None:
@@ -76,10 +54,12 @@ class Admin(commands.Cog):
             await ctx.send('```{}```'.format(t.get_string(sortby="Extension")))
 
     @exts.command(pass_context=True, hidden=True)
-    async def enable(self, ctx, module):
+    async def enable(self, ctx, module=None):
         """Tries to enable an module."""
         author = ctx.message.author
         if self.is_admin(author):
+            if not module:
+                return await ctx.send('Please specify a module')
             try:
                 enabled_exts = self.config['enabled_exts'].split(',')
                 self.bot.load_extension('ext.{}'.format(module))
@@ -104,10 +84,12 @@ class Admin(commands.Cog):
             await ctx.send("You don't have permissions")
 
     @exts.command(pass_context=True, hidden=True)
-    async def disable(self, ctx, module):
+    async def disable(self, ctx, module=None):
         """Tries to disable an module."""
         author = ctx.message.author
         if self.is_admin(author):
+            if not module:
+                return await ctx.send('Please specify a module')
             try:
                 enabled_exts = self.config['enabled_exts'].split(',')
                 self.bot.unload_extension('ext.{}'.format(module))
@@ -120,6 +102,30 @@ class Admin(commands.Cog):
             else:
                 await ctx.send('\N{OK HAND SIGN}')
                 logging.log(20, 'Ext "{}" was successfully disabled by {}'.format(module, author.name))
+        else:
+            await ctx.send("You don't have permissions")
+
+    @exts.command(pass_context=True, name='reload', hidden=True)
+    async def _reload(self, ctx, module=None):
+        """Reloads a module."""
+        author = ctx.message.author
+        if self.is_admin(author):
+            if not module:
+                return await ctx.send('Please specify a module')
+            try:
+                self.bot.reload_extension('ext.{}'.format(module))
+            except commands.ExtensionNotLoaded:
+                return await ctx.send('There is no ext enabled with that name')
+            except commands.ExtensionNotFound:
+                return await ctx.send("There is no ext with that name")
+            except commands.NoEntryPointError:
+                return await ctx.send('That ext has no setup function')
+            except commands.ExtensionFailed as e:
+                await ctx.send('Something went wrong when I tried to enable that ext:')
+                await ctx.send('```py\n{}\n```'.format(traceback.format_exc()))
+            else:
+                await ctx.send('\N{OK HAND SIGN}')
+                logging.log(20, 'Ext {} was successfully reloaded by {}'.format(module, author.name))
         else:
             await ctx.send("You don't have permissions")
 
@@ -151,10 +157,9 @@ class Admin(commands.Cog):
             await ctx.send('Invalid presence command passed...')
 
     @presence.command(pass_context=True)
-    async def rename(self, ctx, *, name=""):
-        if name == '':
-            await ctx.send('A man must have a name')
-            return
+    async def rename(self, ctx, *, name=None):
+        if not name:
+            return await ctx.send('A man must have a name')
         try:
             await self.bot.edit_profile(username=name.strip())
             await ctx.send('\N{OK HAND SIGN}')
