@@ -126,4 +126,5 @@ logs/*
 
 /test
 /test/*
-/pubg_mod
+/pubg_mod/
+/pubg_mod/*
