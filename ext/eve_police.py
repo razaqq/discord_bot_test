@@ -1,15 +1,14 @@
 import json
 import logging
-from discord.ext import  commands
+from discord.ext import commands
 
 
 class EvePolice(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.prefix = self.bot.config['prefix']
         self.config = self.load_config(self.bot.root_dir)
-        self.banned_words = self.config['banned_words']
-        self.suspicious_words = self.config['suspicious_words']
+        self.banned_words = self.config['banned_words'].split(',')
+        self.suspicious_words = self.config['suspicious_words'].split(',')
 
     @staticmethod
     def load_config(root_dir):
@@ -28,13 +27,10 @@ class EvePolice(commands.Cog):
                     return True
         return False
 
+    @commands.Cog.listener()
     async def on_message(self, message):
-        """
-        This event triggers on every message received by the bot. Including one's that it sent itself.
-        """
         if message.author.bot:
             return
-
         if self.inspect(message.content):
             logging.info("Deleting message: {}".format(message.content))
             await message.delete()
