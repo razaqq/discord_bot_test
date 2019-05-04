@@ -36,7 +36,7 @@ class Admin(commands.Cog):
             try:
                 self.bot.reload_extension('ext.{}'.format(module))
             except commands.ExtensionNotLoaded:
-                return ctx.send('That ext is not enabled')
+                return await ctx.send('That ext is not enabled')
             except commands.ExtensionNotFound:
                 return await ctx.send("There is no ext with that name")
             except commands.NoEntryPointError:
@@ -116,7 +116,7 @@ class Admin(commands.Cog):
                 self.config['enabled_exts'] = enabled_str
                 self.write_main_config()
             except commands.ExtensionNotLoaded:
-                return ctx.send('That ext is not enabled')
+                return await ctx.send('That ext is not enabled')
             else:
                 await ctx.send('\N{OK HAND SIGN}')
                 logging.log(20, 'Ext "{}" was successfully disabled by {}'.format(module, author.name))
