@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
 import traceback
-import json
 from prettytable import PrettyTable
 import os
 import logging
@@ -11,8 +10,8 @@ import requests
 class Admin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.config = self.bot.config
-        self.admins = self.load_admin_config()
+        self.main_config = bot.config.MAIN
+        self.admins = bot.config.ADMIN.admins
 
     def is_admin(self, user):
         if user.id in self.admins:
@@ -20,25 +19,16 @@ class Admin(commands.Cog):
         else:
             return False
 
-    def write_main_config(self):
-        with open(self.bot.root_dir + '/config/main.json', 'w', encoding='utf-8') as main_config:
-            return json.dump(self.config, main_config, indent=2)
-
-    def load_admin_config(self):
-        with open(self.bot.root_dir + '/config/admin.json', 'r', encoding='utf-8') as admin_config:
-            return json.load(admin_config)['admins']
-
     @commands.group(hidden=True, pass_context=True)
     async def exts(self, ctx):
         if ctx.invoked_subcommand is None:
             t = PrettyTable()
 
             all_exts = [x.split('.')[0] for x in os.listdir(self.bot.root_dir + '/ext') if x.endswith(".py")]
-            enabled_exts = self.config['enabled_exts'].split(',')
-            loaded_exts = [str(ext.split('.')[1]) for ext, mod in self.bot.extensions.items()]
+            loaded_exts = [str(ext.split('.')[1]) for ext in self.bot.extensions.keys()]
 
             for ext in all_exts:
-                if ext in enabled_exts:
+                if ext in self.main_config.enabled_exts:
                     if ext in loaded_exts:
                         t.add_row([ext, 'enabled'])
                     else:
@@ -61,13 +51,9 @@ class Admin(commands.Cog):
             if not module:
                 return await ctx.send('Please specify a module')
             try:
-                enabled_exts = self.config['enabled_exts'].split(',')
                 self.bot.load_extension('ext.{}'.format(module))
-                enabled_exts.append(str(module))
-                enabled_str = ",".join(x for x in enabled_exts)
-                self.config['enabled_exts'] = enabled_str
-                self.write_main_config()
-
+                self.main_config.enabled_exts.append(str(module))
+                self.bot.config.save()
             except commands.ExtensionNotFound:
                 return await ctx.send("There is no ext with that name")
             except commands.ExtensionAlreadyLoaded:
@@ -91,12 +77,9 @@ class Admin(commands.Cog):
             if not module:
                 return await ctx.send('Please specify a module')
             try:
-                enabled_exts = self.config['enabled_exts'].split(',')
                 self.bot.unload_extension('ext.{}'.format(module))
-                enabled_exts.remove(str(module))
-                enabled_str = ",".join(x for x in enabled_exts)
-                self.config['enabled_exts'] = enabled_str
-                self.write_main_config()
+                self.main_config.enabled_exts.remove(str(module))
+                self.bot.config.save()
             except commands.ExtensionNotLoaded:
                 return await ctx.send('There is no ext enabled with that name')
             else:

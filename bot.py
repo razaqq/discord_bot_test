@@ -95,7 +95,6 @@ class Bot(commands.Bot):
         await self.process_commands(message)
 
     async def shutdown(self, restart=False):
-        self.config.save()
         self._restart = restart
         await self.logout()
 
@@ -114,7 +113,7 @@ class Bot(commands.Bot):
 
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
-            await ctx.send('{}. Use {}help for a list of commands!'.format(error, self.config['prefix']))
+            await ctx.send('{}. Use {}help for a list of commands!'.format(error, self.config.MAIN.prefix))
             return
 
         if isinstance(error, commands.NoPrivateMessage):
