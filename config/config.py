@@ -68,7 +68,7 @@ class Config(cp.ConfigParser):
             'prefix': '!',
             'description': 'All commands below, grouped by category',
             'token': '<your_token_here>',
-            'enabled_exts': ["ext1", "ext2"]
+            'enabled_exts': json.dumps(["admin"])
         }
         config['ADMIN'] = {
             'admins': [123543, 43534534]

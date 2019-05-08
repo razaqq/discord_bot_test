@@ -1,7 +1,7 @@
 from matplotlib import pyplot as plt
 from matplotlib import dates
 import numpy as np
-from datetime import datetime, timedelta
+from datetime import datetime
 import os
 import sqlite3
 from discord.ext import commands

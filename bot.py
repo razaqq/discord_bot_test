@@ -22,7 +22,7 @@ class Bot(commands.Bot):
         self.config = config.Config()
         if self.config.restart_needed:
             logging.error('Something is wrong with the config, please check the logs and edit it accordingly')
-            self.shutdown(restart=False)
+            os._exit(0)
 
         super().__init__(
                         command_prefix=commands.when_mentioned_or(self.config.MAIN.prefix),
@@ -40,6 +40,8 @@ class Bot(commands.Bot):
         try:
             logging.log(20, '####################################################################')
             await self.start(self.config.MAIN.token, reconnect=True)
+        except discord.LoginFailure:
+            logging.error('Cannot login with credentials provided, please check the config')
         except KeyboardInterrupt:
             await self.logout()
 
