@@ -52,8 +52,7 @@ class CountDown:
 
 
 class DiscordTimer(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self):
         self.timer_count = 0
 
     async def update_timer(self, timer, t):
@@ -81,7 +80,7 @@ class DiscordTimer(commands.Cog):
 
 
 def setup(bot):
-    dt = DiscordTimer(bot)
+    dt = DiscordTimer()
     bot.add_cog(dt)
 
 

@@ -4,9 +4,6 @@ from unicodedata import lookup
 
 
 class React(commands.Cog):
-    def __init__(self, bot):
-        self.bot = bot
-
     @commands.command()
     @commands.guild_only()
     async def react(self, ctx, *, msg):
@@ -40,5 +37,5 @@ class React(commands.Cog):
 
 
 def setup(bot):
-    r = React(bot)
+    r = React()
     bot.add_cog(r)

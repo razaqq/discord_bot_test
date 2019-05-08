@@ -1,25 +1,19 @@
 from discord.ext import commands
 from ts3py import server
-import json
 
 
 class Dumpster(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
-        self.config = self.load_config(self.bot.root_dir)
-
-    @staticmethod
-    def load_config(root_dir):
-        with open(root_dir + '/config/ts3.json', 'r', encoding='utf-8') as doc:
-            return json.load(doc)
+        self.config = bot.config.TS3
+        self.prefix = bot.config.MAIN.prefix
 
     @commands.command(pass_context=True)
     async def dumpster(self, ctx, *, name=None):
         if name:
             author = ctx.message.author.name
 
-            ts = server.TS3Server(self.config['ts3ip'], self.config['ts3port'], self.config['ts3sid'])
-            ts.login(self.config['ts3user'], self.config['ts3pass'])
+            ts = server.TS3Server(self.config.ip, self.config.port, self.config.sid)
+            ts.login(self.config.user, self.config.password)
             ts.set_client_nick('The Dumpsterer')
 
             cids = ts.get_clids(name)
@@ -37,7 +31,7 @@ class Dumpster(commands.Cog):
             else:
                 await ctx.send('No user named {}'.format(name))
         else:
-            await ctx.send('Usage: {}dumpster <user>'.format(self.bot.config['prefix']))
+            await ctx.send('Usage: {}dumpster <user>'.format(self.prefix))
 
 
 def setup(bot):

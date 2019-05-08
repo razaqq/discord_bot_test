@@ -1,19 +1,12 @@
-import json
 import logging
 from discord.ext import commands
 
 
 class EvePolice(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
-        self.config = self.load_config(self.bot.root_dir)
-        self.banned_words = self.config['banned_words'].split(',')
-        self.suspicious_words = self.config['suspicious_words'].split(',')
-
-    @staticmethod
-    def load_config(root_dir):
-        with open(root_dir + '/config/eve_police.json', 'r', encoding='utf-8') as doc:
-            return json.load(doc)
+        self.config = bot.config.EMOJI_ART
+        self.banned_words = self.config.banned_words.split(',')
+        self.suspicious_words = self.config.suspicious_words.split(',')
 
     def inspect(self, content):
         words = str(content).lower().split(" ")

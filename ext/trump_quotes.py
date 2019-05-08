@@ -10,7 +10,6 @@ from datetime import datetime
 
 class TrumpQuote(commands.Cog):
     def __init__(self, root_dir):
-        # sqlite
         self.conn = sqlite3.connect('{}/databases/trump_quotes.db'.format(root_dir))
         self.cursor = self.conn.cursor()
 
@@ -147,11 +146,12 @@ class DiscordTrumpQuote:
     def __init__(self, bot):
         self.bot = bot
         self.last_quote = None
-        self.prefix = self.bot.config['prefix']
+        self.prefix = self.bot.config.MAIN.prefix
 
     @commands.group(pass_context=True)
     async def trump(self, ctx):
         """Vote with the Buttons, use the refresh button after 1 min to get answer"""
+        # TODO: Update this for discord.py 1.0
         if ctx.invoked_subcommand is None:
             if self.last_quote is not None:  # does a quote exist?
                 await self.bot.delete_message(self.last_quote)  # remove old quote
@@ -206,8 +206,6 @@ if __name__ == '__main__':
     doctest.testmod()
     s = Stats('/')
     print(s.get_table())
-    #q = TrumpQuote()
-    #q.add_quote('This is a new test', True)
-    #print(q.get_result())
-
-
+    # q = TrumpQuote()
+    # q.add_quote('This is a new test', True)
+    # print(q.get_result())

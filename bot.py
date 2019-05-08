@@ -2,7 +2,6 @@
 
 import asyncio
 import datetime
-import json
 import logging
 from logging.handlers import RotatingFileHandler
 import os
@@ -12,16 +11,22 @@ from discord.ext import commands
 from contextlib import suppress
 import sys
 import time
+from config import config
 
 
 class Bot(commands.Bot):
-    def __init__(self, config_name):
+    def __init__(self):
         self.root_dir = os.path.dirname(os.path.abspath(__file__))
-        self.config = self.load_config(config_name)
+
+        # load the config
+        self.config = config.Config()
+        if self.config.restart_needed:
+            logging.error('Something is wrong with the config, please check the logs and edit it accordingly')
+            self.shutdown(restart=False)
 
         super().__init__(
-                        command_prefix=commands.when_mentioned_or(self.config['prefix']),
-                        description=self.config['description']
+                        command_prefix=commands.when_mentioned_or(self.config.MAIN.prefix),
+                        description=self.config.MAIN.description
                         )
 
         self.start_time = None
@@ -31,14 +36,10 @@ class Bot(commands.Bot):
         self.loop.create_task(self.load_all_extensions())
         self.loop.create_task(self.help_status())
 
-    def load_config(self, config_name):
-        with open(self.root_dir + config_name, 'r', encoding='utf-8') as doc:
-            return json.load(doc)
-
     async def run(self):
         try:
             logging.log(20, '####################################################################')
-            await self.start(self.config['token'], reconnect=True)
+            await self.start(self.config.MAIN.token, reconnect=True)
         except KeyboardInterrupt:
             await self.logout()
 
@@ -56,14 +57,14 @@ class Bot(commands.Bot):
         await self.wait_until_ready()
         await asyncio.sleep(1)  # ensure that on_ready has completed and finished printing
 
-        exts = self.config['enabled_exts'].split(",")
+        exts = self.config.MAIN.enabled_exts
         logging.log(20, 'Loading extensions:')
-        for extension in exts:
+        for ext in exts:
             try:
-                self.load_extension(f'ext.{extension}')
-                logging.log(20, '- {}'.format(extension))
+                self.load_extension(f'ext.{ext}')
+                logging.log(20, '- {}'.format(ext))
             except Exception as e:
-                error = f'{extension}\n {type(e).__name__} : {e}'
+                error = f'{ext}\n {type(e).__name__} : {e}'
                 logging.error('- FAILED to load extension {}'.format(error))
         logging.log(20, '------------------------')
 
@@ -83,7 +84,7 @@ class Bot(commands.Bot):
 
     async def help_status(self):
         await self.wait_until_ready()
-        await self.change_presence(activity=(discord.Game(name='Type {}help'.format(self.config['prefix']))))
+        await self.change_presence(activity=(discord.Game(name='Type {}help'.format(self.config.MAIN.prefix))))
 
     async def on_message(self, message):
         """
@@ -112,7 +113,7 @@ class Bot(commands.Bot):
 
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
-            await ctx.send('{}. Use {}help for a list of commands!'.format(error, self.config['prefix']))
+            await ctx.send('{}. Use {}help for a list of commands!'.format(error, self.config.MAIN.prefix))
             return
 
         if isinstance(error, commands.NoPrivateMessage):
@@ -130,7 +131,7 @@ class Bot(commands.Bot):
 
 
 if __name__ == '__main__':
-    bot = Bot('/config/main.json')
+    bot = Bot()
     loop = asyncio.get_event_loop()
 
     try:

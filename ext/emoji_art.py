@@ -1,5 +1,4 @@
 from discord.ext import commands
-import json
 
 
 class EmojiArt(commands.Cog):
@@ -31,11 +30,6 @@ class Picture:
                 s += '{}{}'.format(self.array[x][y], self.spacer)
             s += '\n'
         return s
-
-    @staticmethod
-    def load_config(root_dir):
-        with open(root_dir + '/config/emoji_art.json', 'r', encoding='utf-8') as doc:
-            return json.load(doc)
 
     def add_border(self):
         for y in range(self.y):

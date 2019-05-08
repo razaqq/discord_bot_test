@@ -1,7 +1,6 @@
 from tweepy import OAuthHandler, API
 import logging
 import discord
-import json
 import asyncio
 import os
 from html import unescape
@@ -11,18 +10,13 @@ from discord.ext import commands
 class TrumpTwitter(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.config = self.load_config(self.bot.root_dir)
+        self.config = bot.config.TRUMP_TWITTER
         self.api = self.get_api()
         self.last_id = None
 
-    @staticmethod
-    def load_config(root_dir):
-        with open(root_dir + '/config/trump_twitter.json', 'r', encoding='utf-8') as doc:
-            return json.load(doc)
-
     def get_api(self):
-        auth = OAuthHandler(self.config['consumer_key'], self.config['consumer_secret'])
-        auth.set_access_token(self.config['access_token'], self.config['access_secret'])
+        auth = OAuthHandler(self.config.consumer_key, self.config.consumer_secret)
+        auth.set_access_token(self.config.access_token, self.config.access_secret)
         return API(auth)
 
     async def read_tweets(self):
@@ -73,8 +67,8 @@ class TrumpTwitter(commands.Cog):
                                   tweet.user.profile_image_url_https, image)
 
     async def post_tweet(self, id_str, username, created_at, text, avatar, image):
-        guild = self.bot.get_guild(self.config['guild_id'])
-        channel = guild.get_channel(self.config['channel_id'])
+        guild = self.bot.get_guild(self.config.guild_id)
+        channel = guild.get_channel(self.config.channel_id)
 
         url = 'https://twitter.com/statuses/{}'.format(id_str)
 
@@ -96,10 +90,14 @@ def setup(bot):
 
 
 if __name__ == '__main__':
+    from config import config
+
     class Bot:
         def __init__(self):
             self.root_dir = os.path.dirname(os.path.abspath(__file__ + '/..'))
             self.main_test = None
+            self.config = config.Config()
+
     b = Bot()
     t = TrumpTwitter(b)
     loop = asyncio.get_event_loop()

@@ -4,8 +4,7 @@ import random
 
 class EightBall(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
-        self.prefix = bot.config['prefix']
+        self.prefix = bot.config.MAIN.prefix
 
     @commands.command(pass_context=True)
     async def eightball(self, ctx, *, question=None):
