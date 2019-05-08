@@ -134,7 +134,7 @@ class Admin(commands.Cog):
         else:
             await ctx.send("You don't have permissions")
 
-    @commands.group(pass_context=True)
+    @commands.group(pass_context=True, hidden=True)
     async def presence(self, ctx):
         if ctx.invoked_subcommand is None:
             await ctx.send('Invalid presence command passed...')
