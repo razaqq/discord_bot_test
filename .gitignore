@@ -111,7 +111,7 @@ venv.bak/
 /databases/worldcup.db
 
 /config_alt/*
-config.ini
+/config/config.ini
 
 logs/*
 
