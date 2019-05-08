@@ -161,5 +161,3 @@ if __name__ == '__main__':
     # print(c.MAIN.token)
     # print(c.TS3.ip)
     print(c.restart_needed)
-    # print(c.BULLSHIT)
-    # print(c.BULLSHIT.lala)

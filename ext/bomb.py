@@ -1,6 +1,5 @@
 from discord.ext import commands
 from ts3py import server
-import json
 import random
 import asyncio
 
