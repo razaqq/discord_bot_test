@@ -12,5 +12,5 @@ Tested only on python >= 3.7.0
 Install:
   - git clone https://github.com/razaqq/discord_bot.git
   - start the bot with "python bot.py"
-  - edit config file under /config/config.py
+  - edit config file under /config/config.ini
   - start the bot again
