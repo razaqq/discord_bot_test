@@ -7,7 +7,7 @@ class FakeNews(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.prefix = self.bot.config.MAIN.prefix
-        self.config = self.bot.config.EVE_POLICE
+        self.config = self.bot.config.FAKE_NEWS
 
     @commands.command(pass_context=True, hidden=True)
     async def fake(self, ctx, *, text=None):
@@ -17,8 +17,9 @@ class FakeNews(commands.Cog):
             # in private channel with msg.author
             # all_guilds = self.bot.guilds
             # guild = discord.utils.get(all_guilds, id=self.config['server_id'])
-            guild = self.bot.get_guild(id=self.config.guild_id)
-            channel = guild.get_channel(self.config.channel_id)
+            print(type(self.config.guild_id))
+            guild = self.bot.get_guild(id=int(self.config.guild_id))
+            channel = guild.get_channel(channel_id=int(self.config.channel_id))
             await self.send_fake_news(text, channel)
         else:
             await ctx.send("Git gud")
