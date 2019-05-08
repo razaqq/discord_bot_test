@@ -1,13 +1,11 @@
 # discord_bot
 
-Dependencies:
-  - PrettyTable
+Dependencies (tested with listed versions):
+  - prettytable (0.7.2)
   - discord.py >= 1.0.0
-  - matplotlib
-  - sqlite3
-  - tweepy
-  - requests
-  - json
+  - matplotlib (3.0.3)
+  - tweepy (3.7.0)
+  - requests (2.20.0)
   
 Tested only on python >= 3.7.0
  
