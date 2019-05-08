@@ -8,19 +8,10 @@ import asyncio
 class Bomb(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.bomb_config = self.load_bomb_config()
-        self.ts_config = self.load_ts_config()
-        self.prefix = self.bot.config['prefix']
-
-    def load_bomb_config(self):
-        with open(self.bot.root_dir + '/config/bomb.json', 'r', encoding='utf-8') as doc:
-            return json.load(doc)
-
-    def load_ts_config(self):
-        with open(self.bot.root_dir + '/config/ts3.json', 'r', encoding='utf-8') as doc:
-            return json.load(doc)
+        self.prefix = self.bot.config.MAIN.prefix
 
     @commands.command(pass_context=True)
+    @commands.guild_only()
     async def bomb(self, ctx):
         """Bombs a user"""
         user_mentions = ctx.message.mentions
@@ -56,10 +47,10 @@ class Bomb(commands.Cog):
             await ctx.send('Usage: "{}bomb @USER"'.format(self.prefix))
 
     def tskick(self, user):
-        if str(user) in self.bomb_config:
-            to_kick = int(self.bomb_config[str(user)])
-            ts = server.TS3Server(self.ts_config['ts3ip'], self.ts_config['ts3port'], self.ts_config['ts3sid'])
-            ts.login(self.ts_config['ts3user'], self.ts_config['ts3pass'])
+        if str(user) in self.bot.config.BOMB:
+            to_kick = int(self.bot.config.BOMB[str(user)])
+            ts = server.TS3Server(self.bot.config.TS3.ip, self.bot.config.TS3.port, self.bot.config.TS3.sid)
+            ts.login(self.bot.config.TS3.user, self.bot.config.TS3.password)
             ts.set_client_nick('serveradmin')
             ts.clientkick(cldbid=to_kick, message='YOU EXPLODED!')
 
