@@ -75,6 +75,7 @@ class DiscordTimer(commands.Cog):
 
     @commands.command(pass_context=True)
     async def timer(self, ctx, seconds):
+        """Starts a timer and pings you at the end"""
         if not self.create_timer(int(seconds), ctx.message.channel, ctx.message.author):
             await ctx.send('10 Mins max and 3 timers at once only nerd')
 

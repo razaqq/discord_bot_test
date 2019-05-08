@@ -9,6 +9,7 @@ class Dumpster(commands.Cog):
 
     @commands.command(pass_context=True)
     async def dumpster(self, ctx, *, name=None):
+        """Puts someone into the dumpster"""
         if name:
             author = ctx.message.author.name
 

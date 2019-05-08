@@ -127,6 +127,7 @@ class Status(commands.Cog):
 
     @commands.command(pass_context=True)
     async def status(self, ctx):
+        """Shows some nice plots about the system status"""
         self.generate_cpu_load_plot()
         self.generate_cpu_temp_plot()
         self.generate_net_usage_plot()

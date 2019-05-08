@@ -68,6 +68,7 @@ class RemindMe(commands.Cog):
     @commands.command(pass_context=True, no_pm=True)
     @commands.guild_only()
     async def remindme(self, ctx, quantity: int = 0, time_unit: str = None, *, text: str = None):
+        """Reminds you in a specified time with a specified text"""
         time_unit = time_unit.lower()
         if (quantity > 0) and text and (time_unit in self.units):
             time_unit = time_unit.lower()
@@ -88,12 +89,14 @@ class RemindMe(commands.Cog):
 
     @commands.command(pass_context=True, no_pm=True)
     async def forgetme(self, ctx):
+        """Forgets all your reminders"""
         user = ctx.message.author.id
         self.remove_all_reminders(user)
         await ctx.send('\N{OK HAND SIGN}')
 
     @commands.command(pass_context=True, no_pm=True)
     async def reminders(self, ctx):
+        """Shows all your reminders"""
         user = ctx.message.author.id
         res = self.get_reminders(user)
         if not res:
