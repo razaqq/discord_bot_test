@@ -110,21 +110,12 @@ venv.bak/
 /databases/trump_quotes.db
 /databases/worldcup.db
 
-/config/admin.json
-/config/bomb.json
-/config/fake_news.json
-/config/main.json
-/config/worldcup.json
-/config/trump_pic.json
-/config/trump_twitter.json
-/config/ts3.json
-/config/eve_police.json
+/config_alt/*
+/config/config.ini
 
 logs/*
 
 /ext/trump_twitter_old.py
 
-/test
 /test/*
-/pubg_mod/
 /pubg_mod/*
