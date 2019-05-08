@@ -7,6 +7,7 @@ class React(commands.Cog):
     @commands.command()
     @commands.guild_only()
     async def react(self, ctx, *, msg):
+        """Reacts to the message above with text. 1 letter once only"""
         if msg:
             if len(msg) > 15:
                 await ctx.send('Your text is too long, 15 chars max')
