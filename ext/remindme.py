@@ -88,6 +88,7 @@ class RemindMe(commands.Cog):
             await ctx.send('Usage: {}remindme <amount> <unit> <message>'.format(self.prefix))
 
     @commands.command(pass_context=True, no_pm=True)
+    @commands.guild_only()
     async def forgetme(self, ctx):
         """Forgets all your reminders"""
         user = ctx.message.author.id
@@ -95,6 +96,7 @@ class RemindMe(commands.Cog):
         await ctx.send('\N{OK HAND SIGN}')
 
     @commands.command(pass_context=True, no_pm=True)
+    @commands.guild_only()
     async def reminders(self, ctx):
         """Shows all your reminders"""
         user = ctx.message.author.id
