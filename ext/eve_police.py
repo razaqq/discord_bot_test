@@ -4,7 +4,7 @@ from discord.ext import commands
 
 class EvePolice(commands.Cog):
     def __init__(self, bot):
-        self.config = bot.config.EMOJI_ART
+        self.config = bot.config.EVE_POLICE
         self.banned_words = self.config.banned_words.split(',')
         self.suspicious_words = self.config.suspicious_words.split(',')
 
