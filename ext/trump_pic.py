@@ -9,6 +9,7 @@ class TrumpPic(commands.Cog):
 
     @commands.command(pass_context=True)
     async def trumppic(self, ctx, *, query=None):
+        """Shows a picture of Mr. President. You can add a query word after"""
         if not query:
             i = ImageSearch(self.config.api_key, self.config.cx, 'donald+trump', 1, 100)
         else:
