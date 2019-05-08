@@ -3,7 +3,6 @@ from discord.ext import commands
 
 class Convert(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
         self.units = ['millimeter(s) aka mm',
                       'centimeter(s) aka cm',
                       'meter(s) aka m',
@@ -30,7 +29,7 @@ class Convert(commands.Cog):
             'mi': 1609.34,
             'mile': 1609.34
         }
-        self.usage = 'Usage: {}convert <amount> <unit1> <unit2>'.format(self.bot.config['prefix'])
+        self.usage = 'Usage: {}convert <amount> <unit1> <unit2>'.format(bot.config.MAIN.prefix)
 
     @commands.command(pass_context=True)
     async def convert(self, ctx, amount1, unit1, unit2):
@@ -57,6 +56,12 @@ def setup(bot):
 
 
 if __name__ == '__main__':
-    bot = 1
+    class Bot:
+        def __init__(self):
+            self.config = lambda: None
+            setattr(self.config, 'MAIN', lambda: None)
+            setattr(self.config.MAIN, 'prefix', 'abc')
+
+    bot = Bot()
     c = Convert(bot)
     print(c._convert(6, 'foot', 'inch'))

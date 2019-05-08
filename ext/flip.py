@@ -3,8 +3,7 @@ from discord.ext import commands
 
 class Flip(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
-        self.config = self.bot.config
+        self.prefix = bot.config.MAIN.prefix
 
     @commands.command()
     async def flip(self, ctx, *, string=None):
@@ -30,7 +29,7 @@ class Flip(commands.Cog):
             await ctx.send(end_string)
             await ctx.send('*Do you feel like an australian yet?*')
         else:
-            await ctx.send('Usage: {}flip <your text here>'.format(self.config['prefix']))
+            await ctx.send('Usage: {}flip <your text here>'.format(self.prefix))
 
 
 def setup(bot):

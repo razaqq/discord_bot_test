@@ -1,19 +1,13 @@
 from discord.ext import commands
 import datetime
-import json
 import discord
 
 
 class FakeNews(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.prefix = self.bot.config['prefix']
-        self.config = self.load_config(self.bot.root_dir)
-
-    @staticmethod
-    def load_config(root_dir):
-        with open(root_dir + '/config/fake_news.json', 'r', encoding='utf-8') as doc:
-            return json.load(doc)
+        self.prefix = self.bot.config.MAIN.prefix
+        self.config = self.bot.config.EVE_POLICE
 
     @commands.command(pass_context=True, hidden=True)
     async def fake(self, ctx, *, text=None):
@@ -23,13 +17,14 @@ class FakeNews(commands.Cog):
             # in private channel with msg.author
             # all_guilds = self.bot.guilds
             # guild = discord.utils.get(all_guilds, id=self.config['server_id'])
-            guild = self.bot.get_guild(id=self.config['guild_id'])
-            channel = guild.get_channel(self.config['channel_id'])
+            guild = self.bot.get_guild(id=self.config.guild_id)
+            channel = guild.get_channel(self.config.channel_id)
             await self.send_fake_news(text, channel)
         else:
             await ctx.send("Git gud")
 
-    async def send_fake_news(self, text, channel):
+    @staticmethod
+    async def send_fake_news(text, channel):
         now = datetime.datetime.now()
         now = now.strftime("%a %b %d %H:%M:%S +0000 %Y")
         embed = discord.Embed(description="{}\n\n[Link]({})".format(text, "http://www.perry-swift.de"), color=0x00aced)

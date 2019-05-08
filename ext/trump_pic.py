@@ -1,33 +1,26 @@
 from discord.ext import commands
-import json
 import requests
 import random
 
 
 class TrumpPic(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
-        self.config = self.load_config(self.bot.root_dir)
-
-    @staticmethod
-    def load_config(root_dir):
-        with open(root_dir + '/config/trump_pic.json', 'r', encoding='utf-8') as doc:
-            return json.load(doc)
+        self.config = bot.config.TRUMP_PIC
 
     @commands.command(pass_context=True)
     async def trumppic(self, ctx, *, query=None):
         if not query:
-            i = ImageSearch(self.config['api_key'], self.config['cx'], 'donald+trump', 1, 100)
+            i = ImageSearch(self.config.api_key, self.config.cx, 'donald+trump', 1, 100)
         else:
             search_query = 'donald+trump'
             for word in query.split(' '):
                 search_query += '+{}'.format(word)
-            i = ImageSearch(self.config['api_key'], self.config['cx'], search_query, 1, 10)
+            i = ImageSearch(self.config.api_key, self.config.cx, search_query, 1, 10)
         img = i.get_image()
         if img:
             await ctx.send(img)
         else:
-            await ctx.send('Something went turbowrong, retry')
+            await ctx.send('Something went turbo-wrong, retry please')
 
 
 class ImageSearch:

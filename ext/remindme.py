@@ -11,7 +11,7 @@ from math import ceil
 class RemindMe(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.prefix = bot.config['prefix']
+        self.prefix = bot.config.MAIN.prefix
         self.units = {'minute': 60,
                       'hour': 60*60,
                       'day': 60*60*24,
@@ -140,6 +140,13 @@ def setup(bot):
 
 
 if __name__ == '__main__':
-    bot = commands.Bot('?')
+    class Bot:
+        def __init__(self):
+            self.config = lambda: None
+            self.root_dir = '.'
+            setattr(self.config, 'MAIN', lambda: None)
+            setattr(self.config.MAIN, 'prefix', 'abc')
+
+    bot = Bot()
     r = RemindMe(bot)
     r.get_reminders(104901117158121472)

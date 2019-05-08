@@ -4,8 +4,7 @@ import asyncio
 
 class RagePing(commands.Cog):
     def __init__(self, bot):
-        self.bot = bot
-        self.prefix = self.bot.config['prefix']
+        self.prefix = bot.config.MAIN.prefix
 
     @commands.command(pass_context=True)
     async def rageping(self, ctx):
