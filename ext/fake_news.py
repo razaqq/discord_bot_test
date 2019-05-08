@@ -17,7 +17,6 @@ class FakeNews(commands.Cog):
             # in private channel with msg.author
             # all_guilds = self.bot.guilds
             # guild = discord.utils.get(all_guilds, id=self.config['server_id'])
-            print(type(self.config.guild_id))
             guild = self.bot.get_guild(id=int(self.config.guild_id))
             channel = guild.get_channel(channel_id=int(self.config.channel_id))
             await self.send_fake_news(text, channel)
