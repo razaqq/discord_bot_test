@@ -11,4 +11,8 @@ Dependencies:
   
 Tested only on python >= 3.7.0
  
-run python3 bot.py
+Install:
+  - git clone https://github.com/razaqq/discord_bot.git
+  - start the bot with "python bot.py"
+  - edit config file under /config/config.py
+  - start the bot again
