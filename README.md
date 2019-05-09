@@ -1,4 +1,4 @@
-# discord_bot
+# Just another discord bot
 
 Dependencies (tested with listed versions):
   - prettytable (0.7.2)
