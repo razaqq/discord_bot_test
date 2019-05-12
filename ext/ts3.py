@@ -18,16 +18,14 @@ class TS3(commands.Cog):
             ts.set_client_nick('serveradmin')
             tree = ts.get_channeltree()
             if not tree:
-                tree = 'nobody is here <:feelsbad:345232499103891456>'
+                return await ctx.send('nobody is here <:feelsbad:345232499103891456>')
             ts.logout()
             await ctx.send('```{}```'.format(tree))
 
-    @ts.command(pass_context=True)
-    async def poke(self, ctx, user=None, message=None):
+    @ts.command(pass_context=True, usage='poke <user>')
+    async def poke(self, ctx, user=None, message=''):
         """Pokes a user with !ts poke "<username>" "Message here" """
         author = ctx.author.name
-        if not message:
-            message = ''
         if user:
             ts = TS3Server(self.config.ip, self.config.port, self.config.sid)
             ts.login(self.config.user, self.config.password)
@@ -41,11 +39,13 @@ class TS3(commands.Cog):
             else:
                 await ctx.send('No user named %s' % user)
         else:
-            await ctx.send('Usage: {}ts poke "<username>" "Message here"'.format(self.prefix))
+            await ctx.send('Please specify a username'.format(self.prefix))
 
-    @ts.command(pass_context=True)
-    async def lastseen(self, ctx, user):
+    @ts.command(pass_context=True, usage='lastseen <user>')
+    async def lastseen(self, ctx, user=None):
         """Shows the time since a user has been seen last"""
+        if not user:
+            return await ctx.send('Please specify a user')
         ts = TS3Server(self.config.ip, self.config.port, self.config.sid)
         ts.login(self.config.user, self.config.password)
         ts.set_client_nick('serveradmin')
