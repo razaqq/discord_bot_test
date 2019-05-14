@@ -46,16 +46,10 @@ class Bot(commands.Bot):
             await self.logout()
 
     async def track_start(self):
-        """
-        Waits for the bot to connect to discord and then records the time.
-        """
         await self.wait_until_ready()
         self.start_time = datetime.datetime.utcnow()
 
     async def load_all_extensions(self):
-        """
-        Tries to load all extensions in the main config enabled_exts
-        """
         await self.wait_until_ready()
         await asyncio.sleep(1)  # ensure that on_ready has completed and finished printing
 
@@ -71,9 +65,6 @@ class Bot(commands.Bot):
         logging.log(20, '------------------------')
 
     async def on_ready(self):
-        """
-        This event is called every time the bot connects or resumes connection.
-        """
         logging.log(20, '------------------------')
         logging.log(20, 'Logged in as       : {} (ID {})'.format(self.user.name, self.user.id))
         logging.log(20, 'discord.py version : {} '.format(discord.__version__))
@@ -84,14 +75,14 @@ class Bot(commands.Bot):
             logging.log(20, '- {} ({})'.format(guild, guild.id))
         logging.log(20, '------------------------')
 
+    async def on_resume(self):
+        await self.help_status()
+
     async def help_status(self):
         await self.wait_until_ready()
         await self.change_presence(activity=(discord.Game(name='Type {}help'.format(self.config.MAIN.prefix))))
 
     async def on_message(self, message):
-        """
-        This event triggers on every message received by the bot. Including one's that it sent itself.
-        """
         if message.author.bot:
             return  # ignore all bots
         await self.process_commands(message)
