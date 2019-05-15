@@ -14,9 +14,6 @@ class FakeNews(commands.Cog):
         msg = ctx.message
         if msg.guild is None and msg.author != self.bot.user and text:
             await ctx.send("Preparing your tweet...")
-            # in private channel with msg.author
-            # all_guilds = self.bot.guilds
-            # guild = discord.utils.get(all_guilds, id=self.config['server_id'])
             guild = self.bot.get_guild(id=int(self.config.guild_id))
             channel = guild.get_channel(channel_id=int(self.config.channel_id))
             await self.send_fake_news(text, channel)
