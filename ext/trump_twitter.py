@@ -67,8 +67,8 @@ class TrumpTwitter(commands.Cog):
                                   tweet.user.profile_image_url_https, image)
 
     async def post_tweet(self, id_str, username, created_at, text, avatar, image):
-        guild = self.bot.get_guild(self.config.guild_id)
-        channel = guild.get_channel(self.config.channel_id)
+        guild = self.bot.get_guild(int(self.config.guild_id))
+        channel = guild.get_channel(int(self.config.channel_id))
 
         url = 'https://twitter.com/statuses/{}'.format(id_str)
 
