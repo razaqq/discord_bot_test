@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3.7
+#!/usr/bin/env python3.7
 
 import asyncio
 import datetime
@@ -22,7 +22,7 @@ class Bot(commands.Bot):
         self.config = config.Config()
         if self.config.restart_needed:
             logging.error('Something is wrong with the config, please check the logs and edit it accordingly')
-            os._exit(0)
+            sys.exit(0)
 
         super().__init__(
                         command_prefix=commands.when_mentioned_or(self.config.MAIN.prefix),
@@ -30,11 +30,11 @@ class Bot(commands.Bot):
                         )
 
         self.start_time = None
-        self.log_setup()
-        self._restart = False
+        self.initialize_logger()
+        self.restart = False
         self.loop.create_task(self.track_start())
         self.loop.create_task(self.load_all_extensions())
-        self.loop.create_task(self.help_status())
+        self.activity = discord.Game(name='Type {}help'.format(self.config.MAIN.prefix))
 
     async def run(self):
         try:
@@ -53,14 +53,14 @@ class Bot(commands.Bot):
         await self.wait_until_ready()
         await asyncio.sleep(1)  # ensure that on_ready has completed and finished printing
 
-        exts = self.config.MAIN.enabled_exts
+        extensions = self.config.MAIN.enabled_exts
         logging.log(20, 'Loading extensions:')
-        for ext in exts:
+        for ext in extensions:
             try:
                 self.load_extension(f'ext.{ext}')
                 logging.log(20, '- {}'.format(ext))
-            except Exception as e:
-                error = f'{ext}\n {type(e).__name__} : {e}'
+            except Exception as exception:
+                error = f'{ext}\n {type(e).__name__} : {exception}'
                 logging.error('- FAILED to load extension {}'.format(error))
         logging.log(20, '------------------------')
 
@@ -75,27 +75,20 @@ class Bot(commands.Bot):
             logging.log(20, '- {} ({})'.format(guild, guild.id))
         logging.log(20, '------------------------')
 
-    async def on_resume(self):
-        await self.help_status()
-
-    async def help_status(self):
-        await self.wait_until_ready()
-        await self.change_presence(activity=(discord.Game(name='Type {}help'.format(self.config.MAIN.prefix))))
-
     async def on_message(self, message):
         if message.author.bot:
             return  # ignore all bots
         await self.process_commands(message)
 
     async def shutdown(self, restart=False):
-        self._restart = restart
+        self.restart = restart
         await self.logout()
 
-    def log_setup(self):
+    def initialize_logger(self):
         logger = logging.getLogger()
         logger.setLevel(logging.INFO)
         file_handler = RotatingFileHandler(self.root_dir + '/logs/discord_bot.log', maxBytes=100000, backupCount=5)
-        formatter = logging.Formatter('%(asctime)s - %(module)-10s - %(levelname)-5s -> %(message)s',
+        formatter = logging.Formatter('%(asctime)s - %(module)-13s - %(levelname)-5s -> %(message)s',
                                       datefmt='%d-%m|%H:%M')
         file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
@@ -144,7 +137,9 @@ if __name__ == '__main__':
             with suppress(asyncio.CancelledError):
                 loop.run_until_complete(task)
         loop.close()
-        if bot._restart:
-            os._exit(1)
+        if bot.restart:
+            sys.exit(1)
+            # os._exit(1)
         else:
-            os._exit(0)
+            sys.exit(0)
+            # os._exit(0)

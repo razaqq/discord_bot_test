@@ -113,7 +113,8 @@ venv.bak/
 /config_alt/*
 /config/config.ini
 
-logs/*
+/logs/*
+*.log
 
 /ext/trump_twitter_old.py
 
