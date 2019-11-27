@@ -67,7 +67,7 @@ class TrumpTwitter(commands.Cog):
         guild = self.bot.get_guild(int(self.config.guild_id))
         channel = guild.get_channel(int(self.config.channel_id))
 
-        url = 'https://twitter.com/statuses/{}'.format(id_str)
+        url = 'https://twitter.com/realDonaldTrump/status/{}'.format(id_str)
 
         embed = discord.Embed(description="{}\n\n[Link]({})".format(text, url), color=0x00aced)
         embed.set_author(name=username, url='https://twitter.com/realDonaldTrump', icon_url=avatar)
