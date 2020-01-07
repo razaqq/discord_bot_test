@@ -144,7 +144,7 @@ class Admin(commands.Cog):
         if not name:
             return await ctx.send('A man must have a name')
         try:
-            await self.bot.edit_profile(username=name.strip())
+            await self.bot.user.edit(username=name.strip())
             await ctx.send('\N{OK HAND SIGN}')
             logging.info('Nickname changed to {} by {}')
         except discord.HTTPException as e:
@@ -158,7 +158,7 @@ class Admin(commands.Cog):
     async def avatar(self, ctx, url):
         response = requests.get(url)
         try:
-            await self.bot.edit_profile(avatar=response.content)
+            await self.bot.user.edit(avatar=response.content)
             await ctx.send('\N{OK HAND SIGN}')
         except discord.HTTPException as e:
             await ctx.send('Failed change avatar: {}'.format(e))
