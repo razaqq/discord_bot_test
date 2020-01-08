@@ -7,11 +7,15 @@ from logging.handlers import RotatingFileHandler
 import os
 import traceback
 import discord
+from platform import python_version
 from discord.ext import commands
 from contextlib import suppress
 import sys
 import time
 from config import config
+
+
+__min_py_version__ = '3.7.0'
 
 
 class Bot(commands.Bot):
@@ -34,11 +38,11 @@ class Bot(commands.Bot):
         self.restart = False
         self.loop.create_task(self.track_start())
         self.loop.create_task(self.load_all_extensions())
-        self.activity = discord.Game(name='Type {}help'.format(self.config.MAIN.prefix))
+        self.activity = discord.Game(name=f'Type {self.config.MAIN.prefix}help')
 
     async def run(self):
         try:
-            logging.log(20, '####################################################################')
+            logging.log(20, '#'*70)
             await self.start(self.config.MAIN.token, reconnect=True)
         except discord.LoginFailure:
             logging.error('Cannot login with credentials provided, please check the config')
@@ -58,22 +62,22 @@ class Bot(commands.Bot):
         for ext in extensions:
             try:
                 self.load_extension(f'ext.{ext}')
-                logging.log(20, '- {}'.format(ext))
+                logging.log(20, f'- {ext}')
             except Exception as exception:
                 error = f'{ext}\n {type(e).__name__} : {exception}'
                 logging.error('- FAILED to load extension {}'.format(error))
-        logging.log(20, '------------------------')
+        logging.log(20, '-'*50)
 
     async def on_ready(self):
-        logging.log(20, '------------------------')
-        logging.log(20, 'Logged in as       : {} (ID {})'.format(self.user.name, self.user.id))
-        logging.log(20, 'discord.py version : {} '.format(discord.__version__))
-        logging.log(20, 'Start time         : {} '.format(self.start_time))
-        logging.log(20, '------------------------')
+        logging.log(20, '-'*50)
+        logging.log(20, f'Logged in as       : {self.user.name} (ID {self.user.id})')
+        logging.log(20, f'discord.py version : {discord.__version__}')
+        logging.log(20, f'Start time         : {self.start_time}')
+        logging.log(20, '-'*50)
         logging.log(20, 'Connected guilds:')
         for guild in self.guilds:
-            logging.log(20, '- {} ({})'.format(guild, guild.id))
-        logging.log(20, '------------------------')
+            logging.log(20, f'- {guild} ({guild.id})')
+        logging.log(20, '-'*50)
 
     async def on_message(self, message):
         if message.author.bot:
@@ -87,7 +91,8 @@ class Bot(commands.Bot):
     def initialize_logger(self):
         logger = logging.getLogger()
         logger.setLevel(logging.INFO)
-        file_handler = RotatingFileHandler(self.root_dir + '/logs/discord_bot.log', maxBytes=100000, backupCount=5)
+        file_handler = RotatingFileHandler(os.path.join(self.root_dir, 'logs', 'discord_bot.log'),
+                                           maxBytes=100000, backupCount=5)
         formatter = logging.Formatter('%(asctime)s - %(module)-13s - %(levelname)-5s -> %(message)s',
                                       datefmt='%d-%m|%H:%M')
         file_handler.setFormatter(formatter)
@@ -99,7 +104,7 @@ class Bot(commands.Bot):
 
     async def on_command_error(self, ctx, error):
         if isinstance(error, commands.CommandNotFound):
-            await ctx.send('{}. Use {}help for a list of commands!'.format(error, self.config.MAIN.prefix))
+            await ctx.send(f'{error}. Type `{self.config.MAIN.prefix}help` for a list of commands!')
             return
 
         if isinstance(error, commands.NoPrivateMessage):
@@ -109,14 +114,18 @@ class Bot(commands.Bot):
         if self.extra_events.get('on_command_error', None):
             return
 
-        if hasattr(ctx.command, "on_error"):
+        if hasattr(ctx.command, 'on_error'):
             return
 
-        print('Ignoring exception in command {}'.format(ctx.command), file=sys.stderr)
+        print(f'Ignoring exception in command {ctx.command}', file=sys.stderr)
         traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
 
 
 if __name__ == '__main__':
+    if python_version() < __min_py_version__:
+        print(f'This bot requires python >= {__min_py_version__}')
+        sys.exit(1)
+
     bot = Bot()
     loop = asyncio.get_event_loop()
 
@@ -139,7 +148,5 @@ if __name__ == '__main__':
         loop.close()
         if bot.restart:
             sys.exit(1)
-            # os._exit(1)
         else:
             sys.exit(0)
-            # os._exit(0)
