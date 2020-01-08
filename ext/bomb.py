@@ -15,15 +15,15 @@ class Bomb(commands.Cog):
         """Bombs a user"""
         user_mentions = ctx.message.mentions
         if len(user_mentions) == 1:
-            wires = {0: '🔴', 1: '🔵', 2: '⚪', 3: '⚫'}
-            answer_num = random.randint(0, 3)
-            answer = wires[answer_num]
-            defuse_msg = await ctx.send('{} QUICK TRY TO DEFUSE THE 💣 BY CHOOSING THE RIGHT WIRE, YOU HAVE 30 SECONDS!'
-                                        ''.format(user_mentions[0].mention))
-            await defuse_msg.add_reaction('🔵')  # blue
-            await defuse_msg.add_reaction('🔴')  # red
-            await defuse_msg.add_reaction('⚫')  # black
-            await defuse_msg.add_reaction('⚪')  # white
+            wires = {0: '\N{LARGE BLUE CIRCLE}',
+                     1: '\N{LARGE RED CIRCLE}',
+                     2: '\N{MEDIUM BLACK CIRCLE}',
+                     3: '\N{MEDIUM WHITE CIRCLE}'}
+            answer = wires[random.randint(0, 3)]
+            defuse_msg = await ctx.send(f'{user_mentions[0].mention} QUICK TRY TO DEFUSE THE \N{BOMB} '
+                                        f'BY CHOOSING THE CORRECT WIRE, YOU HAVE 30 SECONDS!')
+            for color in wires.values():
+                await defuse_msg.add_reaction(color)
 
             def check(r, u):
                 return u.id == user_mentions[0].id and r.message.id == defuse_msg.id
@@ -33,17 +33,16 @@ class Bomb(commands.Cog):
 
             except asyncio.TimeoutError:
                 self.tskick(user_mentions[0])
-                await ctx.send('KABOOOOM, you failed to make a choice! {} would have been correct!'.format(answer))
+                await ctx.send(f'KABOOOOM, you failed to make a choice! `{answer}` would have been correct!')
             else:
-                # yield from bot.remove_reaction(defuse_msg, choice[0].emoji, choice[1])
                 if choice[0].emoji == answer:
                     await ctx.send('Puh you defused that just in time...')
                 else:
                     self.tskick(user_mentions[0])
-                    await ctx.send('KABOOOOM, you chose the wrong wire! {} would have been correct!'.format(answer))
+                    await ctx.send(f'KABOOOOM, you chose the wrong wire! `{answer}` would have been correct!')
 
         else:
-            await ctx.send('Usage: "{}bomb @USER"'.format(self.prefix))
+            await ctx.send(f'Usage: `{self.prefix}bomb @User`')
 
     def tskick(self, user):
         if str(user) in self.bot.config.BOMB:
