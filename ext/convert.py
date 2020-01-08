@@ -29,7 +29,7 @@ class Convert(commands.Cog):
             'mi': 1609.34,
             'mile': 1609.34
         }
-        self.usage = 'Usage: {}convert <amount> <unit1> <unit2>'.format(bot.config.MAIN.prefix)
+        self.usage = f'Usage: `{bot.config.MAIN.prefix}convert <amount> <unit1> <unit2>`'
 
     @commands.command(pass_context=True)
     async def convert(self, ctx, amount1, unit1, unit2):
@@ -46,22 +46,10 @@ class Convert(commands.Cog):
         except ValueError:
             return self.usage
         if unit1 not in self.to_meter or unit2 not in self.to_meter:
-            return 'Allowed units are: {}'.format(self.units)
+            return f'Allowed units are: {self.units}'
         meters = amount1 * self.to_meter[unit1]
-        return '{} {} = {} {}'.format(amount1, unit1, round(meters / self.to_meter[unit2], 3), unit2)
+        return f'{amount1} {unit1} = {round(meters / self.to_meter[unit2], 3)} {unit2}'
 
 
 def setup(bot):
     bot.add_cog(Convert(bot))
-
-
-if __name__ == '__main__':
-    class Bot:
-        def __init__(self):
-            self.config = lambda: None
-            setattr(self.config, 'MAIN', lambda: None)
-            setattr(self.config.MAIN, 'prefix', 'abc')
-
-    bot = Bot()
-    c = Convert(bot)
-    print(c._convert(6, 'foot', 'inch'))
