@@ -1,0 +1,5 @@
+discord.py >= 1.0.0
+tweepy
+prettytable
+requests
+matplotlib
