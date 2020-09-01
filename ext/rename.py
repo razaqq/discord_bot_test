@@ -20,9 +20,11 @@ class Rename(commands.Cog):
 
         if not nick:
             await ctx.send("Username can't be empty.")
+            return
 
         if len(nick) > 32:
             await ctx.send("Username can be 32 chars max.")
+            return
 
         rename_user = ctx.message.mentions[0]
 
