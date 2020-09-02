@@ -63,8 +63,8 @@ class Bot(commands.Bot):
             try:
                 self.load_extension(f'ext.{ext}')
                 logging.log(20, f'- {ext}')
-            except Exception as exception:
-                error = f'{ext}\n {type(e).__name__} : {exception}'
+            except Exception as e:
+                error = f'{ext}\n {type(e).__name__} : {e}'
                 logging.error('- FAILED to load extension {}'.format(error))
         logging.log(20, '-'*50)
 
