@@ -59,10 +59,19 @@ class Rename(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        if str(after.guild.id) != self.bot.config.MAIN.main_guild:
+        if str(before.guild.id) != self.bot.config.MAIN.main_guild:
             return
 
         if before.bot or after.bot:
+            return
+
+        source = None
+        async for entry in before.guild.audit_logs(action=discord.AuditLogAction.member_update, limit=3):
+            if entry.before.nick == before.nick and entry.after.nick == after.nick and entry.target.id == before.id:
+                source = entry.user
+                break
+
+        if not source or source.bot or source.id != before.id:
             return
 
         if before.nick != after.nick:
