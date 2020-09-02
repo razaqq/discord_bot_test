@@ -18,22 +18,27 @@ class Rename(commands.Cog):
             await ctx.send('You have to mention exactly one user.')
             return
 
+        author = ctx.message.author
+        rename_user = ctx.message.mentions[0]
+
+        if rename_user.id == author.id:
+            await ctx.send('You cannot rename yourself.')
+            return
+
         if not nick:
-            await ctx.send("Username can't be empty.")
+            await ctx.send('Username cannot be empty.')
             return
 
         if len(nick) > 32:
-            await ctx.send("Username can be 32 chars max.")
+            await ctx.send('Username can be 32 chars max.')
             return
-
-        rename_user = ctx.message.mentions[0]
 
         react_msg = await ctx.send(f'This will rename `{rename_user.nick}` to `{nick}`. Are you sure?')
         await react_msg.add_reaction(self.success)
         await react_msg.add_reaction(self.fail)
 
         def check(reaction, user):
-            return user.id == ctx.message.author.id and reaction.message.id == react_msg.id
+            return user.id == author.id and reaction.message.id == react_msg.id
 
         try:
             choice, _ = await self.bot.wait_for('reaction_add', check=check, timeout=30.0)
@@ -51,6 +56,20 @@ class Rename(commands.Cog):
             else:
                 await ctx.send('Pls react with either of the two options given.')
             await react_msg.clear_reactions()
+
+    @commands.Cog.listener()
+    async def on_member_update(self, before, after):
+        if after.guild.id != self.bot.config.MAIN.main_guild:
+            return
+
+        if before.bot or after.bot:
+            return
+
+        if before.nick != after.nick:
+            try:
+                await after.edit(nick=before.nick)
+            except discord.Forbidden:
+                pass
 
 
 def setup(bot):
