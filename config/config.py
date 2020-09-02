@@ -68,6 +68,7 @@ class Config(cp.ConfigParser):
             'prefix': '!',
             'description': 'All commands below, grouped by category',
             'token': '<your_token_here>',
+            'main_guild': 0,
             'enabled_exts': json.dumps(["admin"])
         }
         config['ADMIN'] = {
