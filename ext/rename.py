@@ -59,7 +59,7 @@ class Rename(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_update(self, before, after):
-        if after.guild.id != self.bot.config.MAIN.main_guild:
+        if str(after.guild.id) != self.bot.config.MAIN.main_guild:
             return
 
         if before.bot or after.bot:
