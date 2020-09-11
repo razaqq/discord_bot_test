@@ -21,6 +21,10 @@ class Rename(commands.Cog):
         author = ctx.message.author
         rename_user = ctx.message.mentions[0]
 
+        if rename_user.id == self.bot.user.id:
+            await ctx.send('Good try.')
+            return
+
         if rename_user.id == author.id:
             await ctx.send('You cannot rename yourself.')
             return
@@ -52,7 +56,7 @@ class Rename(commands.Cog):
                 except discord.Forbidden:
                     await ctx.send('I dont have permission for that.')
             elif choice.emoji == self.fail:
-                await ctx.send('Aborting...')
+                await ctx.send('Time ran out, aborting...')
             else:
                 await ctx.send('Pls react with either of the two options given.')
             await react_msg.clear_reactions()
